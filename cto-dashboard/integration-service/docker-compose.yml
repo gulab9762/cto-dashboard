@@ -21,7 +21,7 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: postgres
+    container_name: postgres1
     environment:
       POSTGRES_DB: cto_dashboard
       POSTGRES_USER: postgres
