@@ -5,6 +5,8 @@ import { Kafka, Producer } from "kafkajs";
 export class KafkaProducer implements OnModuleInit, OnModuleDestroy {
   private kafka: Kafka;
   private producer: Producer;
+  private isConnected = false;
+  private connectionPromise: Promise<void> | null = null;
 
   constructor() {
     this.kafka = new Kafka({
@@ -17,6 +19,7 @@ export class KafkaProducer implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     try {
       await this.producer.connect();
+      this.isConnected = true;
       console.log("✅ Kafka producer connected");
     } catch (error) {
       const err = error as Error;
@@ -27,23 +30,42 @@ export class KafkaProducer implements OnModuleInit, OnModuleDestroy {
   }
 
   private async retryConnect() {
-    const maxRetries = 5;
+    const maxRetries = 10;
     let attempts = 0;
     
     const retry = async () => {
       try {
         await this.producer.connect();
+        this.isConnected = true;
         console.log("✅ Kafka producer connected (after retry)");
       } catch (error) {
         attempts++;
         if (attempts < maxRetries) {
           console.log(`⏳ Kafka retry ${attempts}/${maxRetries}...`);
           setTimeout(retry, 5000);
+        } else {
+          console.error("❌ Max Kafka retries reached");
         }
       }
     };
     
     setTimeout(retry, 5000);
+  }
+
+  private async ensureConnected(): Promise<void> {
+    if (this.isConnected) {
+      return;
+    }
+    
+    // Wait up to 30 seconds for connection
+    const startTime = Date.now();
+    while (!this.isConnected && Date.now() - startTime < 30000) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    if (!this.isConnected) {
+      throw new Error("Kafka producer failed to connect");
+    }
   }
 
   async onModuleDestroy() {
@@ -52,13 +74,25 @@ export class KafkaProducer implements OnModuleInit, OnModuleDestroy {
   }
 
   async publish(topic: string, message: any): Promise<void> {
-    await this.producer.send({
-      topic,
-      messages: [
-        {
-          value: JSON.stringify(message),
-        },
-      ],
-    });
+    try {
+      // Ensure producer is connected before publishing
+      await this.ensureConnected();
+      
+      console.log(`📤 Publishing event to topic: ${topic}`);
+      await this.producer.send({
+        topic,
+        messages: [
+          {
+            key: message.orgId || "default",
+            value: JSON.stringify(message),
+          },
+        ],
+      });
+      console.log(`✅ Event published to Kafka: ${message.type}`);
+    } catch (error) {
+      const err = error as Error;
+      console.error(`❌ Failed to publish event: ${err.message}`);
+      throw error;
+    }
   }
 }

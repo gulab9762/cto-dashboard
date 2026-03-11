@@ -52,16 +52,25 @@ export class GithubController {
     @Headers("x-github-event") eventType: string,
     @Body() payload: any
   ) {
-    console.log(`Received GitHub webhook: ${eventType}`);
+    console.log(`📨 Received GitHub webhook: ${eventType}`);
 
     const event = this.mapper.map(eventType, payload);
 
     if (event) {
-      await this.kafka.publish(
-        process.env.KAFKA_TOPIC || "engineering-events",
-        event
-      );
-      console.log(`Published event: ${event.type}`);
+      console.log(`🔄 Mapping webhook to event: ${event.type}`);
+      try {
+        await this.kafka.publish(
+          process.env.KAFKA_TOPIC || "engineering-events",
+          event
+        );
+        console.log(`✅ Successfully published event: ${event.type}`);
+      } catch (error) {
+        const err = error as Error;
+        console.error(`❌ Failed to publish event: ${err.message}`);
+        return { status: "error", message: err.message };
+      }
+    } else {
+      console.warn(`⚠️  Failed to map webhook event type: ${eventType}`);
     }
 
     return { status: "ok" };

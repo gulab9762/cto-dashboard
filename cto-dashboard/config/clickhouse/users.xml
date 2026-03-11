@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <users>
+        <default>
+            <!-- No password required (development only) -->
+            <access_management>0</access_management>
+            <quota>default</quota>
+        </default>
+    </users>
+</clickhouse>

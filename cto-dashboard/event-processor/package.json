@@ -11,22 +11,23 @@
     "test": "jest",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "migrate": "prisma migrate deploy"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.4.22",
     "@prisma/client": "^5.8.0",
     "kafkajs": "^2.2.4",
-    "clickhouse": "^2.6.2",
-    "uuid": "^9.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
-    "prisma": "^5.8.0"
+    "prisma": "^5.8.0",
+    "typescript": "^5.0.0"
   }
 }

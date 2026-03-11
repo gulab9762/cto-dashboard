@@ -23,7 +23,7 @@ services:
   # Metrics Database
   postgres:
     image: postgres:15
-    container_name: postgres
+    container_name: postgres1
     environment:
       POSTGRES_DB: cto_dashboard
       POSTGRES_USER: postgres
@@ -47,7 +47,10 @@ services:
       - "9000:9000"
     environment:
       CLICKHOUSE_DB: cto_dashboard
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
     volumes:
+      - ./config/clickhouse/users.xml:/etc/clickhouse-server/users.d/users.xml:ro
       - clickhouse_data:/var/lib/clickhouse
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8123/ping"]
@@ -55,51 +58,51 @@ services:
       timeout: 5s
       retries: 5
 
-  # Integration Service (Webhook handler)
-  integration-service:
-    build:
-      context: ./services/integration-service
-      dockerfile: Dockerfile
-    container_name: integration-service
-    ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: development
-      PORT: 3000
-      KAFKA_BROKERS: redpanda:29092
-      KAFKA_TOPIC: engineering-events
-    depends_on:
-      redpanda:
-        condition: service_started
-    networks:
-      - cto-network
+  # # Integration Service (Webhook handler)
+  # integration-service:
+  #   build:
+  #     context: ./services/integration-service
+  #     dockerfile: Dockerfile
+  #   container_name: integration-service
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 3000
+  #     KAFKA_BROKERS: redpanda:29092
+  #     KAFKA_TOPIC: engineering-events
+  #   depends_on:
+  #     redpanda:
+  #       condition: service_started
+  #   networks:
+  #     - cto-network
 
-  # Event Processor (Kafka consumer)
-  event-processor:
-    build:
-      context: ./services/event-processor
-      dockerfile: Dockerfile
-    container_name: event-processor
-    ports:
-      - "3001:3001"
-    environment:
-      NODE_ENV: development
-      PORT: 3001
-      KAFKA_BROKERS: redpanda:29092
-      KAFKA_TOPIC: engineering-events
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/cto_dashboard?schema=public"
-      CLICKHOUSE_HOST: clickhouse
-      CLICKHOUSE_PORT: 8123
-      CLICKHOUSE_DATABASE: cto_dashboard
-    depends_on:
-      redpanda:
-        condition: service_started
-      postgres:
-        condition: service_healthy
-      clickhouse:
-        condition: service_healthy
-    networks:
-      - cto-network
+  # # Event Processor (Kafka consumer)
+  # event-processor:
+  #   build:
+  #     context: ./services/event-processor
+  #     dockerfile: Dockerfile
+  #   container_name: event-processor
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 3001
+  #     KAFKA_BROKERS: redpanda:29092
+  #     KAFKA_TOPIC: engineering-events
+  #     DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/cto_dashboard?schema=public"
+  #     CLICKHOUSE_HOST: clickhouse
+  #     CLICKHOUSE_PORT: 8123
+  #     CLICKHOUSE_DATABASE: cto_dashboard
+  #   depends_on:
+  #     redpanda:
+  #       condition: service_started
+  #     postgres:
+  #       condition: service_healthy
+  #     clickhouse:
+  #       condition: service_healthy
+  #   networks:
+  #     - cto-network
 
 volumes:
   postgres_data:
