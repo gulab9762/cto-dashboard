@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --node-id 0
+      - --check=false
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      REDPANDA_ADVERTISE_KAFKA_API: redpanda:29092
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: cto_dashboard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: cto_dashboard
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+
+volumes:
+  postgres_data:
+  clickhouse_data:
