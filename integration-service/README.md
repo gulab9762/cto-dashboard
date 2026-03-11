@@ -69,6 +69,8 @@ Supported events:
 - `pull_request_review` (submitted with approval)
 - `push`
 
+**Setup Guide:** See [GITHUB_WEBHOOK_SETUP.md](GITHUB_WEBHOOK_SETUP.md)
+
 ### Jira Webhook
 ```
 POST /jira/webhook
@@ -77,6 +79,8 @@ POST /jira/webhook
 Supported events:
 - `jira:issue_created`
 - `jira:issue_updated`
+
+**Setup Guide:** See [JIRA_WEBHOOK_SETUP.md](JIRA_WEBHOOK_SETUP.md)
 
 ## Environment Variables
 

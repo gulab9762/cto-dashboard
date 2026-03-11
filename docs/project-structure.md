@@ -62,7 +62,8 @@ infra/
 For now implement:
 
 ```
-services/integration-service
+services/integration-service    ✅ DONE
+services/event-processor        ✅ DONE (NEW!)
 ```
 
 ---
