@@ -15,8 +15,35 @@ export class KafkaProducer implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleInit() {
-    await this.producer.connect();
-    console.log("Kafka producer connected");
+    try {
+      await this.producer.connect();
+      console.log("✅ Kafka producer connected");
+    } catch (error) {
+      const err = error as Error;
+      console.warn("⚠️  Kafka connection failed, retrying in background", err.message);
+      // Retry connection in background
+      this.retryConnect();
+    }
+  }
+
+  private async retryConnect() {
+    const maxRetries = 5;
+    let attempts = 0;
+    
+    const retry = async () => {
+      try {
+        await this.producer.connect();
+        console.log("✅ Kafka producer connected (after retry)");
+      } catch (error) {
+        attempts++;
+        if (attempts < maxRetries) {
+          console.log(`⏳ Kafka retry ${attempts}/${maxRetries}...`);
+          setTimeout(retry, 5000);
+        }
+      }
+    };
+    
+    setTimeout(retry, 5000);
   }
 
   async onModuleDestroy() {

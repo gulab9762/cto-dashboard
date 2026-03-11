@@ -1,0 +1,110 @@
+version: "3.9"
+
+services:
+  # Message Queue
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --node-id 0
+      - --check=false
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      REDPANDA_ADVERTISE_KAFKA_API: redpanda:29092
+
+  # Metrics Database
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: cto_dashboard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Analytics Database
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: cto_dashboard
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Integration Service (Webhook handler)
+  integration-service:
+    build:
+      context: ./services/integration-service
+      dockerfile: Dockerfile
+    container_name: integration-service
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      KAFKA_BROKERS: redpanda:29092
+      KAFKA_TOPIC: engineering-events
+    depends_on:
+      redpanda:
+        condition: service_started
+    networks:
+      - cto-network
+
+  # Event Processor (Kafka consumer)
+  event-processor:
+    build:
+      context: ./services/event-processor
+      dockerfile: Dockerfile
+    container_name: event-processor
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      KAFKA_BROKERS: redpanda:29092
+      KAFKA_TOPIC: engineering-events
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/cto_dashboard?schema=public"
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: 8123
+      CLICKHOUSE_DATABASE: cto_dashboard
+    depends_on:
+      redpanda:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - cto-network
+
+volumes:
+  postgres_data:
+  clickhouse_data:
+
+networks:
+  cto-network:
+    driver: bridge

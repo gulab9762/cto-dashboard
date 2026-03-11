@@ -1,30 +1,32 @@
 {
-  "name": "integration-service",
+  "name": "event-processor",
   "version": "1.0.0",
-  "description": "CTO Dashboard Integration Service - GitHub & Jira webhook handler",
+  "description": "CTO Dashboard Event Processor - Consumes events from Kafka and persists to PostgreSQL/ClickHouse",
   "main": "dist/main.js",
   "scripts": {
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "build": "nest build",
-    "test": "jest"
+    "test": "jest",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
-    "@nestjs/platform-express": "^10.0.0",
-    "@nestjs/swagger": "^11.2.6",
+    "@prisma/client": "^5.8.0",
     "kafkajs": "^2.2.4",
+    "clickhouse": "^2.6.2",
+    "uuid": "^9.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1",
-    "swagger-ui-express": "^5.0.1",
-    "uuid": "^9.0.0"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
     "@types/node": "^20.0.0",
-    "@types/uuid": "^10.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "prisma": "^5.8.0"
   }
 }
