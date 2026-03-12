@@ -31,10 +31,12 @@ export class EventProcessingService {
       this.logger.log(
         `✅ Event processed: ${event.type} for org ${event.orgId}`
       );
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : "";
       this.logger.error(
-        `❌ Failed to process event: ${error.message}`,
-        error.stack
+        `❌ Failed to process event: ${errorMsg}`,
+        errorStack
       );
       throw error;
     }

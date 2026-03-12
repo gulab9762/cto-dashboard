@@ -33,8 +33,10 @@ export class DatabaseService {
 
       // Update metrics
       await this.updateEventMetrics(event);
-    } catch (error) {
-      this.logger.error(`❌ Failed to store event: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : "";
+      this.logger.error(`❌ Failed to store event: ${errorMsg}`, errorStack);
       throw error;
     }
   }
@@ -73,9 +75,10 @@ export class DatabaseService {
           `📊 Metric updated: ${event.orgId}/${metricType} on ${today.toISOString()}`
         );
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
       this.logger.warn(
-        `⚠️  Failed to update metrics: ${error.message}`
+        `⚠️  Failed to update metrics: ${errorMsg}`
       );
       // Don't throw - metrics are secondary
     }

@@ -31,21 +31,29 @@ export class KafkaConsumer implements OnModuleInit, OnModuleDestroy {
       await this.consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
           try {
+            if (!message.value) {
+              this.logger.warn("Received message with no value");
+              return;
+            }
             const event = JSON.parse(message.value.toString());
             this.logger.log(`📬 Received event: ${event.type}`);
 
             // Process and store event
             await this.eventProcessing.processAndStoreEvent(event);
-          } catch (error) {
+          } catch (error: unknown) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            const errorStack = error instanceof Error ? error.stack : "";
             this.logger.error(
-              `❌ Error processing message: ${error.message}`,
-              error.stack
+              `❌ Error processing message: ${errorMsg}`,
+              errorStack
             );
           }
         },
       });
-    } catch (error) {
-      this.logger.error("Failed to start Kafka consumer", error.stack);
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : "";
+      this.logger.error("Failed to start Kafka consumer", errorStack);
       // Continue startup, allow retry
       setTimeout(() => this.onModuleInit(), 5000);
     }
