@@ -240,3 +240,22 @@ This will trigger:
 2. `PR_CREATED` event
 
 Both appear in Kafka for downstream processing.
+
+
+
+curl -X POST https://qd3w2jjv-3000.inc1.devtunnels.ms/github/webhook \
+  -H "Content-Type: application/json" \
+  -H "x-github-event: push" \
+  -d '{
+  "ref": "refs/heads/main",
+  "pusher": { "name": "john-doe" },
+  "commits": [
+    {
+      "id": "abc123def456",
+      "message": "Fix deployment issue",
+      "timestamp": "2026-03-12T10:00:00Z"
+    }
+  ],
+  "repository": { "name": "my-repo" },
+  "organization": { "login": "my-org" }
+}'
