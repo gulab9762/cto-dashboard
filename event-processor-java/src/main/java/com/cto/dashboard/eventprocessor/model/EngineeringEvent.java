@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Entity
-@Table(name = "\"EngineeringEvent\"", indexes = {
+@Table(name = "engineering_event", indexes = {
         @Index(name = "idx_enginevent_orgid", columnList = "orgId"),
         @Index(name = "idx_enginevent_source", columnList = "source"),
         @Index(name = "idx_enginevent_type", columnList = "type"),

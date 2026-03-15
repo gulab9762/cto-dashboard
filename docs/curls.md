@@ -62,3 +62,55 @@ curl -X POST https://qd3w2jjv-3000.inc1.devtunnels.ms/github/webhook \
   "organization": { "login": "my-org" }
 }'
 ```
+
+### 4. GraphQL Query to Fetch Metrics
+```bash
+curl -X POST http://localhost:4000/graphql \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "'"$query"'",
+    "variables": {
+      "orgId": "'"$orgId"'"
+    }
+  }'
+```
+Sample Query:
+```graphql
+{
+  organization(login: "my-org") {
+    metrics {
+      prsMerged
+      averageCycleTime
+      reviewCount
+    }
+  }
+}
+```
+Sample cURL:
+```bash
+curl -X POST http://localhost:4000/graphql \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "query GetOrgMetrics($orgId: ID!) { organization(id: $orgId) { metrics(days: 30) { prsMerged averageCycleTime reviewCount } } }",
+    "variables": {
+      "orgId": "acme-corp"
+    }
+  }'
+
+
+```
+Sample Response:
+{"data":{"organization":{"metrics":{"prsMerged":15,"averageCycleTime":24.5,"reviewCount":30}}}}
+
+### 5. GraphQL Query to Fetch Metrics Schema
+```bash
+curl -X POST http://localhost:4000/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ __schema { queryType { fields { name args { name type { name kind } } } } } }"}'
+
+  {"data":{"__schema":{"queryType":{"fields":[{"name":"organization","args":[{"name":"id","type":{"name":null,"kind":"NON_NULL"}}]},{"name":"deployments","args":[{"name":"orgId","type":{"name":null,"kind":"NON_NULL"}},{"name":"per
+iod","type":{"name":null,"kind":"NON_NULL"}}]},{"name":"incidents","args":[{"name":"orgId","type":{"name":null,"kind":"NON_NULL"}}]},{"name":"recentEvents","args":[{"name":"orgId","type":{"name":null,"kind":"NON_NULL"}},{"name":"limit","type":{"name":"Int","kind":"SCALAR"}}]},{"name":"metricTrends","args":[{"name":"orgId","type":{"name":null,"kind":"NON_NULL"}},{"name":"metricType","type":{"name":null,"kind":"NON_NULL"}}]}]}}}}
+
+curl -X POST https://qd3w2jjv-4000.inc1.devtunnels.ms/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ __schema { queryType { fields { name args { name type { name kind } } } } } }"}'

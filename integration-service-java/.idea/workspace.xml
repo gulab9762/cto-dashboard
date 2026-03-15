@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dacb37a0-1b36-4a77-a031-a71b8bce8eca" name="Changes" comment="" />
+    <list default="true" id="dacb37a0-1b36-4a77-a031-a71b8bce8eca" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../api-gateway-java/src/main/java/com/ctodashboard/apigateway/config/CorsConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../api-gateway-java/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../api-gateway-java/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../api-gateway-java/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../api-gateway-java/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../api-gateway-java/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../api-gateway-java/target/classes/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/curls.md" beforeDir="false" afterPath="$PROJECT_DIR$/../docs/curls.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/database/DatabaseService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/database/DatabaseService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/main.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,38 +27,38 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "gulab9762"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;gulab9762&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/gulab9762/cto-dashboard.git",
-    "accountId": "a2b255e3-dad3-4404-a282-0a1c9e92e7ab"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/gulab9762/cto-dashboard.git&quot;,
+    &quot;accountId&quot;: &quot;a2b255e3-dad3-4404-a282-0a1c9e92e7ab&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="3AyEtz5rUYGf3YNNVJ8P8ClXDKp" />
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.IntegrationServiceApplication.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "java-integration-svc",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Gulab/VSCode/cto-dashboard/integration-service-java",
-    "settings.editor.selected.configurable": "preferences.keymap"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.IntegrationServiceApplication.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;api-dashboard&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Gulab/VSCode/cto-dashboard/api-gateway-java&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="IntegrationServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.dashboard.integration.IntegrationServiceApplication" />
