@@ -111,3 +111,6 @@ curl -X POST http://localhost:4000/graphql \
   {"data":{"__schema":{"queryType":{"fields":[{"name":"organization","args":[{"name":"id","type":{"name":null,"kind":"NON_NULL"}}]},{"name":"deployments","args":[{"name":"orgId","type":{"name":null,"kind":"NON_NULL"}},{"name":"per
 iod","type":{"name":null,"kind":"NON_NULL"}}]},{"name":"incidents","args":[{"name":"orgId","type":{"name":null,"kind":"NON_NULL"}}]},{"name":"recentEvents","args":[{"name":"orgId","type":{"name":null,"kind":"NON_NULL"}},{"name":"limit","type":{"name":"Int","kind":"SCALAR"}}]},{"name":"metricTrends","args":[{"name":"orgId","type":{"name":null,"kind":"NON_NULL"}},{"name":"metricType","type":{"name":null,"kind":"NON_NULL"}}]}]}}}}
 
+curl -X POST https://qd3w2jjv-4000.inc1.devtunnels.ms/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ __schema { queryType { fields { name args { name type { name kind } } } } } }"}'

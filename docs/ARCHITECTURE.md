@@ -393,8 +393,8 @@ Storage:
 | **Processing** | Event Processor (NestJS) | Event consumer | ✅ Complete |
 | **Storage (OLTP)** | PostgreSQL | Transactional data | ✅ Complete |
 | **Storage (OLAP)** | ClickHouse | Analytics warehouse | ✅ Complete |
-| **API** | GraphQL Gateway | Query interface | 🔄 TODO |
-| **UI** | React Dashboard | Visualizations | 🔄 TODO |
+| **API** | GraphQL Gateway | Query interface |  ✅ Complete |
+| **UI** | React Dashboard | Visualizations |  ✅ Complete  |
 | **Orchestration** | Docker Compose / K8s | Deployment | 🔄 TODO |
 
 ---

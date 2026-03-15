@@ -10,6 +10,8 @@ spring:
     cors:
       allowed-origins: "*"
       allowed-methods: "*"
+      allowed-headers: "*"
+      allow-credentials: false
 
   # Data source will be configured properly when connected to actual database
   # For now, we mock responses but include dependency and some placeholder config to prevent context load failure
@@ -23,6 +25,12 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  web:
+    cors:
+          allowed-origins: "*"
+          allowed-methods: "*"
+          allowed-headers: "*"
+          allow-credentials: false
 
 clickhouse:
   url: jdbc:ch://localhost:8123/cto_dashboard

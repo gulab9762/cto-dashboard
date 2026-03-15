@@ -17,7 +17,7 @@ async function getOrganizationMetrics(orgId: string): Promise<any> {
       }
     `;
     
-    const response = await fetch('http://localhost:4000/graphql', {
+    const response = await fetch('https://qd3w2jjv-4000.inc1.devtunnels.ms/graphql', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
