@@ -1,0 +1,55 @@
+type Query {
+  organization(id: ID!): Organization
+  deployments(orgId: ID!, period: Period!): [Deployment]
+  incidents(orgId: ID!): [Incident]
+  recentEvents(orgId: ID!, limit: Int): [Event]
+  metricTrends(orgId: ID!, metricType: String!): [AnalyticData]
+}
+
+enum Period {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+type Organization {
+  id: ID!
+  metrics(days: Int!): Metrics
+}
+
+type Metrics {
+  prsMerged: Int
+  averageCycleTime: Float
+  reviewCount: Int
+}
+
+type Deployment {
+  date: String
+  count: Int
+  successRate: Float
+}
+
+type Incident {
+  date: String
+  count: Int
+  correlatedEvents: [CorrelatedEvent]
+}
+
+type CorrelatedEvent {
+  type: String
+  actor: String
+}
+
+type Event {
+  id: ID!
+  type: String
+  source: String
+  actor: String
+  timestamp: String
+  repo: String
+}
+
+type AnalyticData {
+  date: String
+  value: Float
+}

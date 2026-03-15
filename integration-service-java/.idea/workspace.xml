@@ -18,21 +18,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "gulab9762"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;gulab9762&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/gulab9762/cto-dashboard.git",
-    "accountId": "a2b255e3-dad3-4404-a282-0a1c9e92e7ab"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/gulab9762/cto-dashboard.git&quot;,
+    &quot;accountId&quot;: &quot;a2b255e3-dad3-4404-a282-0a1c9e92e7ab&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="3AyEtz5rUYGf3YNNVJ8P8ClXDKp" />
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
@@ -44,7 +44,6 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "java-integration-svc",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/Gulab/VSCode/cto-dashboard/integration-service-java",
     "settings.editor.selected.configurable": "preferences.keymap"

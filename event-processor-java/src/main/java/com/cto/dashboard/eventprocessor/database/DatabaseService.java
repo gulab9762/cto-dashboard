@@ -33,7 +33,7 @@ public class DatabaseService {
         try {
             // Store in PostgreSQL
             EngineeringEvent storedEvent = engineeringEventRepository.save(event);
-            logger.debug("✅ Event stored in PostgreSQL: {}", storedEvent.getId());
+            logger.info("✅ Event stored in PostgreSQL: {}", storedEvent.getId());
 
             // Update metrics
             updateEventMetrics(event);
