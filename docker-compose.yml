@@ -14,6 +14,8 @@ services:
       - --reserve-memory 0M
       - --node-id 0
       - --check=false
+      - --kafka-addr=PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
     ports:
       - "9092:9092"
       - "29092:29092"
@@ -53,7 +55,7 @@ services:
       - ./config/clickhouse/users.xml:/etc/clickhouse-server/users.d/users.xml:ro
       - clickhouse_data:/var/lib/clickhouse
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8123/ping"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8123/ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -77,32 +79,32 @@ services:
   #   networks:
   #     - cto-network
 
-  # # Event Processor (Kafka consumer)
-  # event-processor:
-  #   build:
-  #     context: ./services/event-processor
-  #     dockerfile: Dockerfile
-  #   container_name: event-processor
-  #   ports:
-  #     - "3001:3001"
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 3001
-  #     KAFKA_BROKERS: redpanda:29092
-  #     KAFKA_TOPIC: engineering-events
-  #     DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/cto_dashboard?schema=public"
-  #     CLICKHOUSE_HOST: clickhouse
-  #     CLICKHOUSE_PORT: 8123
-  #     CLICKHOUSE_DATABASE: cto_dashboard
-  #   depends_on:
-  #     redpanda:
-  #       condition: service_started
-  #     postgres:
-  #       condition: service_healthy
-  #     clickhouse:
-  #       condition: service_healthy
-  #   networks:
-  #     - cto-network
+  # Event Processor (Java Kafka consumer)
+  event-processor-java:
+    build:
+      context: ./event-processor-java
+      dockerfile: Dockerfile
+    container_name: event-processor-java
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: "3001"
+      KAFKA_BROKERS: "redpanda:29092"
+      KAFKA_TOPIC: "engineering-events"
+      DATABASE_URL: "jdbc:postgresql://postgres:5432/cto_dashboard"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "postgres"
+      CLICKHOUSE_HOST: "clickhouse"
+      CLICKHOUSE_PORT: "8123"
+      CLICKHOUSE_DATABASE: "cto_dashboard"
+    depends_on:
+      redpanda:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+
 
 volumes:
   postgres_data:
