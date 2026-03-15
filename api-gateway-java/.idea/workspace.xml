@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="dc715478-ef99-4414-9d4c-53a903720e86" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.ask2agent.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/ApiGatewayApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/config/ClickHouseConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/controller/AnalyticsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/controller/MetricsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/entity/EngineeringEventEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/entity/EventMetricEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/model/AnalyticData.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/model/CorrelatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/model/Deployment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/model/Event.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/model/Incident.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/model/Metrics.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/model/Organization.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/repository/EngineeringEventRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/repository/EventMetricRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/service/AnalyticsService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ctodashboard/apigateway/service/MetricsService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/graphql/schema.graphqls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/api-gateway-java-0.0.1-SNAPSHOT.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/api-gateway-java-0.0.1-SNAPSHOT.jar.original" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/application.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/ApiGatewayApplication.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/config/ClickHouseConfig.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/controller/AnalyticsController.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/controller/MetricsController.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/entity/EngineeringEventEntity.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/entity/EventMetricEntity.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/model/AnalyticData.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/model/CorrelatedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/model/Deployment.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/model/Event.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/model/Incident.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/model/Metrics.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/model/Organization.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/repository/EngineeringEventRepository.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/repository/EventMetricRepository.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/service/AnalyticsService.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ctodashboard/apigateway/service/MetricsService.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/graphql/schema.graphqls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../docs/ARCHITECTURE checklist.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../event-processor-java/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../event-processor-java/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../event-processor-java/.idea/copilot.data.migration.ask2agent.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../event-processor-java/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../event-processor-java/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../event-processor-java/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../event-processor-java/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/curls.md" beforeDir="false" afterPath="$PROJECT_DIR$/../docs/curls.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/src/main/java/com/cto/dashboard/eventprocessor/database/DatabaseService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/src/main/java/com/cto/dashboard/eventprocessor/database/DatabaseService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/src/main/java/com/cto/dashboard/eventprocessor/model/EngineeringEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/src/main/java/com/cto/dashboard/eventprocessor/model/EngineeringEvent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/src/main/java/com/cto/dashboard/eventprocessor/model/EventMetric.java" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/src/main/java/com/cto/dashboard/eventprocessor/model/EventMetric.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/EventProcessorApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/EventProcessorApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/clickhouse/ClickHouseService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/clickhouse/ClickHouseService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/database/DatabaseService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/database/DatabaseService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/kafka/KafkaConsumerService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/kafka/KafkaConsumerService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EngineeringEvent.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EngineeringEvent.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EngineeringEventDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EngineeringEventDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EventMetric.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EventMetric.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EventProcessingStatus.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EventProcessingStatus.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EventType.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/model/EventType.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/processor/EventProcessingService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/processor/EventProcessingService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/repository/EngineeringEventRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/repository/EngineeringEventRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/repository/EventMetricRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/repository/EventMetricRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../integration-service-java/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../integration-service-java/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/Gulab/VSCode/cto-dashboard/api-gateway-java" value="3AyKmwaattsGRfjeSTGKeCmaWuH" />
+    </persistenceIdMap>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;gulab9762&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/gulab9762/cto-dashboard.git&quot;,
+    &quot;accountId&quot;: &quot;a2b255e3-dad3-4404-a282-0a1c9e92e7ab&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="3AyKmwaattsGRfjeSTGKeCmaWuH" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ApiGatewayApplication.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;api-dashboard&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Gulab/VSCode/cto-dashboard/api-gateway-java&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="ApiGatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.ctodashboard.apigateway.ApiGatewayApplication" />
+      <module name="api-gateway-java" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.ctodashboard.apigateway.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.ApiGatewayApplication" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="dc715478-ef99-4414-9d4c-53a903720e86" name="Changes" comment="" />
+      <created>1773559532915</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773559532915</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>
