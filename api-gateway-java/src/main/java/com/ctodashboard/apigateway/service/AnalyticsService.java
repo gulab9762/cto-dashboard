@@ -20,17 +20,23 @@ public class AnalyticsService {
     }
 
     public List<Event> getRecentEvents(String orgId, int limit) {
-        String query = "SELECT id, type, source, actor, toString(timestamp) as ts, repo FROM events " +
-                       "WHERE orgId = ? ORDER BY timestamp DESC LIMIT ?";
+
+        String query = String.format("""
+        SELECT id, type, source, actor, timestamp AS ts, repo
+        FROM events
+        WHERE orgId = '%s'
+        ORDER BY timestamp DESC
+        LIMIT %d
+        """, orgId, limit);
 
         return clickHouseJdbcTemplate.query(query, (rs, rowNum) -> new Event(
                 rs.getString("id"),
                 rs.getString("type"),
                 rs.getString("source"),
                 rs.getString("actor"),
-                rs.getString("ts"),
+                rs.getTimestamp("ts").toInstant().toString(),
                 rs.getString("repo")
-        ), orgId, limit);
+        ));
     }
 
     public List<AnalyticData> getMetricTrends(String orgId, String metricType) {
