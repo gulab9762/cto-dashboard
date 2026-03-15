@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CTO Dashboard UI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+        <div class="container">
+            <header>
+                <h1>CTO Dashboard</h1>
+                <p>Real-time engineering metrics & analytics overlay</p>
+            </header>
+            
+            <div class="input-section">
+                <input type="text" id="orgIdInput" placeholder="Enter Organization ID (e.g. acme-corp)" value="1" />
+                <button id="fetchBtn">Fetch Metrics</button>
+            </div>
+
+            <div class="error-message" id="errorMsg" style="display: none;"></div>
+
+            <div class="loader" id="loader" style="display: none;">
+                <div class="spinner"></div>
+                <p>Crunching engineering data...</p>
+            </div>
+
+            <div class="metrics-grid" id="metricsGrid" style="display: none;">
+                <div class="metric-card">
+                    <div class="metric-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+                        PRs Merged (Last 30 Days)
+                    </div>
+                    <div class="metric-value" id="prsMergedValue">--</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        Avg Cycle Time (Last 30 Days)
+                    </div>
+                    <div class="metric-value">
+                        <span id="cycleTimeValue">--</span> 
+                        <span style="font-size: 1.25rem; color: #94a3b8; font-weight: 500;">hrs</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
