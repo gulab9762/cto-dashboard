@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -19,12 +20,13 @@ public class KafkaProducerService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    @SuppressWarnings("null")
     public void publish(String topic, EngineeringEvent message) {
         log.info("📤 Publishing event to topic: {}", topic);
         
         String key = message.getOrgId() != null ? message.getOrgId() : "default";
 
-        CompletableFuture<?> future = kafkaTemplate.send(topic, key, message);
+        CompletableFuture<?> future = kafkaTemplate.send(Objects.requireNonNull(topic), key, message);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
                 log.info("✅ Event published to Kafka: {}", message.getType());

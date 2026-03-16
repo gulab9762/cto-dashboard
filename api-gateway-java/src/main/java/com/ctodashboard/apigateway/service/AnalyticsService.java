@@ -19,6 +19,7 @@ public class AnalyticsService {
         this.clickHouseJdbcTemplate = clickHouseJdbcTemplate;
     }
 
+    @SuppressWarnings("null")
     public List<Event> getRecentEvents(String orgId, int limit) {
 
         String query = String.format("""
@@ -29,14 +30,19 @@ public class AnalyticsService {
         LIMIT %d
         """, orgId, limit);
 
-        return clickHouseJdbcTemplate.query(query, (rs, rowNum) -> new Event(
-                rs.getString("id"),
-                rs.getString("type"),
-                rs.getString("source"),
-                rs.getString("actor"),
-                rs.getTimestamp("ts").toInstant().toString(),
-                rs.getString("repo")
-        ));
+        return clickHouseJdbcTemplate.query(query, (rs, rowNum) -> {
+            java.sql.Timestamp tsValue = rs.getTimestamp("ts");
+            String ts = (tsValue != null) ? tsValue.toInstant().toString() : "";
+            
+            return new Event(
+                rs.getString("id") != null ? rs.getString("id") : "",
+                rs.getString("type") != null ? rs.getString("type") : "",
+                rs.getString("source") != null ? rs.getString("source") : "",
+                rs.getString("actor") != null ? rs.getString("actor") : "",
+                ts,
+                rs.getString("repo") != null ? rs.getString("repo") : ""
+            );
+        });
     }
 
     public List<AnalyticData> getMetricTrends(String orgId, String metricType) {

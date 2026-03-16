@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
+import java.util.Objects;
 
 @Configuration
 public class ClickHouseConfig {
@@ -32,6 +33,6 @@ public class ClickHouseConfig {
 
     @Bean(name = "clickHouseJdbcTemplate")
     public JdbcTemplate clickHouseJdbcTemplate() {
-        return new JdbcTemplate(clickHouseDataSource());
+        return new JdbcTemplate(Objects.requireNonNull(clickHouseDataSource()));
     }
 }
