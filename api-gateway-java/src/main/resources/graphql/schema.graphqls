@@ -48,6 +48,7 @@ type Event {
   actor: String
   timestamp: String
   repo: String
+  url: String
 }
 
 type AnalyticData {

@@ -33,6 +33,7 @@ export class MetricsService {
                     actor
                     timestamp
                     repo
+                    url
                 }
             }
         `;

@@ -79,7 +79,8 @@ const DashboardContainer: FC = () => {
         timestamp: new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         status: e.type.toLowerCase().includes('error') ? 'error' : 
                 e.type.toLowerCase().includes('warn') ? 'warning' : 'success',
-        description: `Triggered by ${e.actor} via ${e.source}`
+        description: `Triggered by ${e.actor} via ${e.source}`,
+        url: e.url
     }));
 
     const stabilityMetrics = [

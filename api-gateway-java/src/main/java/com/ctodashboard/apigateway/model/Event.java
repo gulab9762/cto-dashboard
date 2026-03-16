@@ -14,4 +14,5 @@ public class Event {
     private String actor;
     private String timestamp;
     private String repo;
+    private String url;
 }

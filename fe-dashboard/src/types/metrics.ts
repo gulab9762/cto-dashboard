@@ -56,6 +56,7 @@ export interface Event {
     actor: string;
     timestamp: string;
     repo: string;
+    url?: string;
 }
 
 export interface MetricTrend {

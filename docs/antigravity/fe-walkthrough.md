@@ -18,13 +18,13 @@ I implemented the following parameterized components:
 ### 3. Configuration-Driven Architecture
 As requested, the components are fully parameterized. The dashboard layout is generated from a `WidgetConfig` array, making it easy to implement drag-and-drop or custom themes in the future.
 
-### Live Data Integration
+### Live Data & Interactivity
 The dashboard is now connected to the real `api-gateway-java` service, fetching live metrics from ClickHouse.
 - **Real Metrics**: PRs, Commits, and Cycle Time are now non-zero and live.
-- **Activity Stream**: Dynamically populated with events like `PR_REVIEW_COMMENT_CREATED`.
+- **Interactive Activity Stream**: Every event in the timeline is now a **clickable link** that takes you directly to the relevant GitHub commit or pull request.
 - **Auto-Refresh**: Pulse active, refreshing all components every 30 seconds.
 
-![Live Dashboard Screenshot](./media/cto_dashboard_live_ok_1773680874832.png)
+![Interactive Timeline](./media/interactive_timeline_final_ok_png_1773681827641.png)
 
 ### Video Walkthrough
 
