@@ -25,15 +25,12 @@ Finally, we made the dashboard alive and actionable.
 - **Smart Deep-linking**: The backend constructs real GitHub URLs for commits and pull requests by parsing event metadata.
 - **UX Polish**: Added hover transitions and pointer indicators to guide interaction.
 
-![Interactive Timeline](./media/interactive_timeline_final_ok_png_1773681827641.png)
+![Interactive Timeline](./media/actual_data_dashboard_1773682395239.png)
 
 ## Visual Demonstrations
 
-#### Video: Component Interaction & Flow
-![Component Interaction](./media/final_dashboard_capture_1773679497984.webp)
-
-#### Video: Timeline Interactivity & Redirection
-![Interactivity Demo](./media/interactive_timeline_final_ok_1773681788746.webp)
+#### Video: Actual GitHub Data Demo & Redirection
+![Interactivity Demo](./media/actual_github_data_demo_1773682339468.webp)
 
 ## Technical Stack
 - **Frontend**: React 19 + TypeScript + Vite.
