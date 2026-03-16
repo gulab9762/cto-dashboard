@@ -17,3 +17,7 @@
 ## Communication
 - Provide clear explanations for architectural or design decisions.
 - Format code blocks with the appropriate language tags.
+
+## Operating system
+- Always use bash/linux based commands.
+- Prioritize shell scripts (.sh) over PowerShell scripts (.ps1) for automation and tasks.

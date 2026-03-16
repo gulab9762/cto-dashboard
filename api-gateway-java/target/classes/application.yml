@@ -36,3 +36,11 @@ clickhouse:
   url: jdbc:ch://localhost:8123/cto_dashboard
   username: default
   password: ""
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

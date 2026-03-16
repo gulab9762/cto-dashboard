@@ -2,6 +2,7 @@ C:\Users\Gulab\VSCode\cto-dashboard\api-gateway-java\src\main\java\com\ctodashbo
 C:\Users\Gulab\VSCode\cto-dashboard\api-gateway-java\src\main\java\com\ctodashboard\apigateway\service\MetricsService.java
 C:\Users\Gulab\VSCode\cto-dashboard\api-gateway-java\src\main\java\com\ctodashboard\apigateway\controller\AnalyticsController.java
 C:\Users\Gulab\VSCode\cto-dashboard\api-gateway-java\src\main\java\com\ctodashboard\apigateway\controller\MetricsController.java
+C:\Users\Gulab\VSCode\cto-dashboard\api-gateway-java\src\main\java\com\ctodashboard\apigateway\config\CorsConfig.java
 C:\Users\Gulab\VSCode\cto-dashboard\api-gateway-java\src\main\java\com\ctodashboard\apigateway\entity\EngineeringEventEntity.java
 C:\Users\Gulab\VSCode\cto-dashboard\api-gateway-java\src\main\java\com\ctodashboard\apigateway\model\Metrics.java
 C:\Users\Gulab\VSCode\cto-dashboard\api-gateway-java\src\main\java\com\ctodashboard\apigateway\repository\EventMetricRepository.java

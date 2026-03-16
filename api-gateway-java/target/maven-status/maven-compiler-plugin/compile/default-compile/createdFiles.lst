@@ -6,6 +6,7 @@ com\ctodashboard\apigateway\repository\EngineeringEventRepository.class
 com\ctodashboard\apigateway\repository\EventMetricRepository.class
 com\ctodashboard\apigateway\model\Incident.class
 com\ctodashboard\apigateway\entity\EventMetricEntity.class
+com\ctodashboard\apigateway\config\CorsConfig.class
 com\ctodashboard\apigateway\ApiGatewayApplication.class
 com\ctodashboard\apigateway\entity\EngineeringEventEntity.class
 com\ctodashboard\apigateway\model\CorrelatedEvent.class
