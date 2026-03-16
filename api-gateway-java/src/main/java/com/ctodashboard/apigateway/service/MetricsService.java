@@ -8,22 +8,23 @@ import com.ctodashboard.apigateway.model.Incident;
 import com.ctodashboard.apigateway.model.Metrics;
 import com.ctodashboard.apigateway.repository.EngineeringEventRepository;
 import com.ctodashboard.apigateway.repository.EventMetricRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class MetricsService {
 
-    private final EventMetricRepository eventMetricRepository;
-    private final EngineeringEventRepository engineeringEventRepository;
+    @Autowired
+    private EventMetricRepository eventMetricRepository;
+
+    @Autowired
+    private EngineeringEventRepository engineeringEventRepository;
 
     public Metrics getMetrics(String orgId, int days) {
         LocalDate startDate = LocalDate.now().minusDays(days);

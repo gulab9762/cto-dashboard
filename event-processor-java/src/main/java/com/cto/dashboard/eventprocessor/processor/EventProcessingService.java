@@ -6,6 +6,7 @@ import com.cto.dashboard.eventprocessor.model.EngineeringEvent;
 import com.cto.dashboard.eventprocessor.model.EngineeringEventDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -15,13 +16,11 @@ public class EventProcessingService {
 
     private static final Logger logger = LoggerFactory.getLogger(EventProcessingService.class);
 
-    private final DatabaseService databaseService;
-    private final ClickHouseService clickHouseService;
+    @Autowired
+    private DatabaseService databaseService;
 
-    public EventProcessingService(DatabaseService databaseService, ClickHouseService clickHouseService) {
-        this.databaseService = databaseService;
-        this.clickHouseService = clickHouseService;
-    }
+    @Autowired
+    private ClickHouseService clickHouseService;
 
     public void processAndStoreEvent(EngineeringEventDto eventDto) {
         try {

@@ -6,7 +6,7 @@ import com.cto.dashboard.eventprocessor.repository.EngineeringEventRepository;
 import com.cto.dashboard.eventprocessor.repository.EventMetricRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,21 +19,22 @@ public class DatabaseService {
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
 
-    private final EngineeringEventRepository engineeringEventRepository;
-    private final EventMetricRepository eventMetricRepository;
+    @Autowired
+    private EngineeringEventRepository engineeringEventRepository;
 
-    public DatabaseService(EngineeringEventRepository engineeringEventRepository,
-                           EventMetricRepository eventMetricRepository) {
-        this.engineeringEventRepository = engineeringEventRepository;
-        this.eventMetricRepository = eventMetricRepository;
-    }
+    @Autowired
+    private EventMetricRepository eventMetricRepository;
 
     @Transactional
     public void storeEvent(EngineeringEvent event) {
         try {
             // Store in PostgreSQL
-            EngineeringEvent storedEvent = engineeringEventRepository.save(event);
-            logger.info("✅ Event stored in PostgreSQL: {}", storedEvent.getId());
+            // We use suppress warnings here because the IDE's static analysis 
+            // sees CrudRepository.save() as potentially nullable, but also 
+            // calls any subsequent null check "dead code."
+            @SuppressWarnings("null")
+            EngineeringEvent savedEvent = engineeringEventRepository.save(event);
+            logger.info("✅ Event stored in PostgreSQL: {}", savedEvent.getId());
 
             // Update metrics
             updateEventMetrics(event);
