@@ -137,6 +137,21 @@ services:
     networks:
       - cto-network
 
+  # Frontend Dashboard
+  fe-dashboard:
+    build:
+      context: ./fe-dashboard
+      dockerfile: Dockerfile
+    container_name: fe-dashboard
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_URL=http://localhost:4000/graphql
+    depends_on:
+      - api-gateway-java
+    networks:
+      - cto-network
+
 volumes:
   postgres_data:
   clickhouse_data:

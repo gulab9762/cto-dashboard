@@ -63,14 +63,18 @@ export default function () {
             organization: { login: 'acme-corp' },
         };
     } else if (eventType === 'pull_request') {
+        const action = getRandomItem(['opened', 'closed', 'reopened']);
+        const isMerged = action === 'closed' && Math.random() > 0.5;
         payload = {
-            action: getRandomItem(['opened', 'closed', 'reopened']),
+            action: action,
             pull_request: {
                 id: Math.floor(Math.random() * 100000),
                 number: Math.floor(Math.random() * 1000),
                 title: `Feature by ${dev}`,
                 user: { login: dev },
                 head: { ref: `feature-${dev}` },
+                merged: isMerged,
+                merged_at: isMerged ? new Date().toISOString() : null,
                 created_at: new Date().toISOString(),
             },
             repository: { name: repo },
