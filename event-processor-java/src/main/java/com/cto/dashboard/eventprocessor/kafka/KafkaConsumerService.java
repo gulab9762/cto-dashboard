@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class KafkaConsumerService {
 
@@ -21,19 +24,30 @@ public class KafkaConsumerService {
     private ObjectMapper objectMapper;
 
     @KafkaListener(topics = "${kafka.topic.events:engineering-events}", groupId = "${spring.kafka.consumer.group-id:event-processor-group}")
-    public void consume(String message) {
+    public void consume(List<String> messages) {
         try {
-            if (message == null || message.trim().isEmpty()) {
-                logger.warn("Received empty message from Kafka");
+            if (messages == null || messages.isEmpty()) {
                 return;
             }
 
-            EngineeringEventDto eventDto = objectMapper.readValue(message, EngineeringEventDto.class);
-            logger.info("📬 Received event: {}", eventDto.getType());
+            logger.info("📬 Received batch of {} messages from Kafka", messages.size());
+            List<EngineeringEventDto> batch = new ArrayList<>();
 
-            eventProcessingService.processAndStoreEvent(eventDto);
+            for (String message : messages) {
+                try {
+                    if (message != null && !message.trim().isEmpty()) {
+                        batch.add(objectMapper.readValue(message, EngineeringEventDto.class));
+                    }
+                } catch (Exception e) {
+                    logger.error("❌ Error parsing message: {}", e.getMessage());
+                }
+            }
+
+            if (!batch.isEmpty()) {
+                eventProcessingService.processAndStoreEvents(batch);
+            }
         } catch (Exception e) {
-            logger.error("❌ Error processing message: {}", e.getMessage(), e);
+            logger.error("❌ Error processing batch: {}", e.getMessage(), e);
         }
     }
 }

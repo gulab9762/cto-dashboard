@@ -1,7 +1,6 @@
 package com.cto.dashboard.eventprocessor.clickhouse;
 
 import com.cto.dashboard.eventprocessor.model.EngineeringEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -112,28 +112,41 @@ public class ClickHouseService {
         }
     }
 
-    public void storeEvent(EngineeringEvent event) {
+    public void storeEvents(List<EngineeringEvent> events) {
+        if (events == null || events.isEmpty()) return;
+
         try {
-            String metadataJson = event.getMetadata() != null ? objectMapper.writeValueAsString(event.getMetadata()) : "{}";
+            StringBuilder queryBuilder = new StringBuilder();
+            queryBuilder.append(String.format("INSERT INTO %s.events (id, type, source, orgId, repo, actor, timestamp, metadata) VALUES ", database));
 
-            String query = String.format("INSERT INTO %s.events (id, type, source, orgId, repo, actor, timestamp, metadata) VALUES (%s, %s, %s, %s, %s, %s, fromUnixTimestamp64Milli(%s), %s)",
-                    database,
-                    escape(event.getEventId()),
-                    escape(event.getType()),
-                    escape(event.getSource()),
-                    escape(event.getOrgId()),
-                    escape(event.getRepo()),
-                    escape(event.getActor()),
-                    event.getTimestamp() != null ? event.getTimestamp() : 0,
-                    escape(metadataJson)
-            );
+            for (int i = 0; i < events.size(); i++) {
+                EngineeringEvent event = events.get(i);
+                String metadataJson = event.getMetadata() != null ? objectMapper.writeValueAsString(event.getMetadata()) : "{}";
+                
+                queryBuilder.append(String.format("(%s, %s, %s, %s, %s, %s, fromUnixTimestamp64Milli(%s), %s)",
+                        escape(event.getEventId()),
+                        escape(event.getType()),
+                        escape(event.getSource()),
+                        escape(event.getOrgId()),
+                        escape(event.getRepo()),
+                        escape(event.getActor()),
+                        event.getTimestamp() != null ? event.getTimestamp() : 0,
+                        escape(metadataJson)
+                ));
 
-            executeQuery(query);
-            logger.debug("📊 Event stored in ClickHouse: {}", event.getId());
-        } catch (JsonProcessingException e) {
-            logger.warn("⚠️ Failed to parse metadata for ClickHouse: {}", e.getMessage());
+                if (i < events.size() - 1) {
+                    queryBuilder.append(", ");
+                }
+            }
+
+            executeQuery(queryBuilder.toString());
+            logger.info("📊 Batch of {} events stored in ClickHouse", events.size());
         } catch (Exception e) {
-            logger.warn("⚠️ Failed to store event in ClickHouse: {}", e.getMessage());
+            logger.error("⚠️ Failed to store batch in ClickHouse: {}", e.getMessage());
         }
+    }
+
+    public void storeEvent(EngineeringEvent event) {
+        storeEvents(java.util.Collections.singletonList(event));
     }
 }

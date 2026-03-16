@@ -19,26 +19,41 @@ public class GithubMapper {
     private static final Logger log = LoggerFactory.getLogger(GithubMapper.class);
 
     public EngineeringEvent map(String type, JsonNode payload) {
-        return switch (type) {
-            case "pull_request" -> mapPullRequest(payload);
-            case "pull_request_review" -> mapPullRequestReview(payload);
-            case "push" -> mapPush(payload);
-            default -> null;
-        };
+        try {
+            return switch (type) {
+                case "pull_request" -> mapPullRequest(payload);
+                case "pull_request_review" -> mapPullRequestReview(payload);
+                case "push" -> mapPush(payload);
+                default -> null;
+            };
+        } catch (Exception e) {
+            log.error("❌ Unexpected error mapping event type {}: {}", type, e.getMessage());
+            return null;
+        }
     }
 
     private EngineeringEvent mapPullRequest(JsonNode payload) {
         String action = payload.path("action").asText(null);
         JsonNode pr = payload.path("pull_request");
 
-        if (pr.isMissingNode() || pr.path("user").path("login").asText(null) == null) {
-            log.warn("Invalid PR payload: missing required fields");
+        log.debug("Mapping PR webhook - action: {}, pr.missing: {}", action, pr.isMissingNode());
+
+        if (pr.isMissingNode()) {
+            log.warn("Invalid PR payload: missing pull_request node");
+            return null;
+        }
+
+        String actor = pr.path("user").path("login").asText(null);
+        if (actor == null) {
+            log.warn("Invalid PR payload: missing user.login");
+            // If we want to be resilient, we could fallback to "unknown"
+            // actor = "unknown"; 
             return null;
         }
 
         String orgId = getOrgId(payload);
         String repo = getRepo(payload);
-        String actor = pr.path("user").path("login").asText();
+        actor = pr.path("user").path("login").asText();
 
         if ("opened".equals(action)) {
             Map<String, Object> metadata = new HashMap<>();
@@ -69,19 +84,48 @@ public class GithubMapper {
                 parseTime(pr.path("updated_at").asText()), metadata);
         }
 
-        if ("closed".equals(action) && pr.path("merged").asBoolean(false)) {
+        if ("reopened".equals(action)) {
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("prId", pr.path("id").asLong());
             metadata.put("prNumber", pr.path("number").asLong());
-            metadata.put("mergedBy", pr.path("merged_by").path("login").asText(null));
-            metadata.put("additions", pr.path("additions").asInt(0));
-            metadata.put("deletions", pr.path("deletions").asInt(0));
-            metadata.put("filesChanged", pr.path("changed_files").asInt(0));
 
-            return createEvent(EventType.PR_MERGED, orgId, repo, actor, 
-                parseTime(pr.path("merged_at").asText()), metadata);
+            return createEvent(EventType.PR_REOPENED, orgId, repo, actor, 
+                parseTime(pr.path("updated_at").asText()), metadata);
         }
 
+        if ("synchronize".equals(action)) {
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("prId", pr.path("id").asLong());
+            metadata.put("prNumber", pr.path("number").asLong());
+            metadata.put("sha", pr.path("head").path("sha").asText(null));
+
+            return createEvent(EventType.PR_SYNCHRONIZED, orgId, repo, actor, 
+                parseTime(pr.path("updated_at").asText()), metadata);
+        }
+
+        if ("closed".equals(action)) {
+            if (pr.path("merged").asBoolean(false)) {
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put("prId", pr.path("id").asLong());
+                metadata.put("prNumber", pr.path("number").asLong());
+                metadata.put("mergedBy", pr.path("merged_by").path("login").asText(null));
+                metadata.put("additions", pr.path("additions").asInt(0));
+                metadata.put("deletions", pr.path("deletions").asInt(0));
+                metadata.put("filesChanged", pr.path("changed_files").asInt(0));
+
+                return createEvent(EventType.PR_MERGED, orgId, repo, actor, 
+                    parseTime(pr.path("merged_at").asText()), metadata);
+            } else {
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put("prId", pr.path("id").asLong());
+                metadata.put("prNumber", pr.path("number").asLong());
+
+                return createEvent(EventType.PR_CLOSED, orgId, repo, actor, 
+                    parseTime(pr.path("updated_at").asText()), metadata);
+            }
+        }
+
+        log.warn("Unhandled PR action: {}", action);
         return null;
     }
 

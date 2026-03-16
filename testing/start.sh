@@ -1,5 +1,5 @@
 #!/bin/bash
-
+cd ..
 echo "Starting CTO Dashboard full setup..."
 
 # 1. Start Docker compose for infrastructure from the root directory

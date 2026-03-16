@@ -140,10 +140,3 @@ echo "4000";
 echo "-----";
 curl -X GET https://gulab-cto-dash-4000.loca.lt/actuator/health
 ```
-
----
-
-### 7. Performance Testing
-For high-scale simulation (5k devs, 40 repos), use the k6 script:
-- **Location**: `testing/github-webhook-load-test.js`
-- **Setup**: See [README.md](../testing/README.md) for k6 installation and usage instructions.

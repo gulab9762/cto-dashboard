@@ -21,6 +21,8 @@ services:
       - "29092:29092"
     environment:
       REDPANDA_ADVERTISE_KAFKA_API: redpanda:29092
+    networks:
+      - cto-network
 
   # Metrics Database
   postgres:
@@ -39,6 +41,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - cto-network
 
   # Analytics Database
   clickhouse:
@@ -59,6 +63,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - cto-network
 
   # Integration Service (Webhook handler)
   integration-service:
@@ -68,11 +74,17 @@ services:
     container_name: integration-service
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       NODE_ENV: development
       PORT: 3000
-      KAFKA_BROKERS: redpanda:29092
-      KAFKA_TOPIC: engineering-events
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      TOMCAT_THREADS_MAX: ${TOMCAT_THREADS_MAX}
+      TOMCAT_THREADS_MIN_SPARE: ${TOMCAT_THREADS_MIN_SPARE}
+      TOMCAT_MAX_CONNECTIONS: ${TOMCAT_MAX_CONNECTIONS}
+      TOMCAT_ACCEPT_COUNT: ${TOMCAT_ACCEPT_COUNT}
     depends_on:
       redpanda:
         condition: service_started
@@ -97,6 +109,10 @@ services:
       CLICKHOUSE_HOST: "clickhouse"
       CLICKHOUSE_PORT: "8123"
       CLICKHOUSE_DATABASE: "cto_dashboard"
+      KAFKA_CONCURRENCY: ${KAFKA_CONCURRENCY}
+      KAFKA_MAX_POLL_RECORDS: ${KAFKA_MAX_POLL_RECORDS}
+      KAFKA_FETCH_MIN_BYTES: ${KAFKA_FETCH_MIN_BYTES}
+      KAFKA_FETCH_MAX_WAIT_MS: ${KAFKA_FETCH_MAX_WAIT_MS}
     depends_on:
       redpanda:
         condition: service_started
@@ -104,6 +120,8 @@ services:
         condition: service_healthy
       clickhouse:
         condition: service_healthy
+    networks:
+      - cto-network
 
   # API Gateway (Java)
   api-gateway-java:
@@ -126,6 +144,23 @@ services:
         condition: service_healthy
       clickhouse:
         condition: service_healthy
+    networks:
+      - cto-network
+
+  # Frontend Dashboard
+  fe-dashboard:
+    build:
+      context: ./fe-dashboard
+      dockerfile: Dockerfile
+    container_name: fe-dashboard
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_URL=http://localhost:4000/graphql
+    depends_on:
+      - api-gateway-java
+    networks:
+      - cto-network
 
 volumes:
   postgres_data:

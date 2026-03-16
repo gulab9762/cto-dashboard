@@ -15,6 +15,9 @@ public enum EventType {
     PR_REVIEW_COMMENTED,
     PR_CHANGES_REQUESTED,
     PR_MERGED,
+    PR_CLOSED,
+    PR_REOPENED,
+    PR_SYNCHRONIZED,
 
     // Builds
     BUILD_STARTED,

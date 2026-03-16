@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.List;
 
 @Service
 public class EventProcessingService {
@@ -22,37 +23,43 @@ public class EventProcessingService {
     @Autowired
     private ClickHouseService clickHouseService;
 
-    public void processAndStoreEvent(EngineeringEventDto eventDto) {
+    public void processAndStoreEvents(List<EngineeringEventDto> batch) {
         try {
-            logger.info("Processing event: {} from {}", eventDto.getType(), eventDto.getSource());
+            logger.info("🚀 Processing batch of {} events", batch.size());
+            
+            List<EngineeringEvent> events = batch.stream()
+                    .filter(this::validateEvent)
+                    .map(dto -> {
+                        EngineeringEvent event = new EngineeringEvent();
+                        event.setId(UUID.randomUUID().toString());
+                        event.setEventId(dto.getId());
+                        event.setType(dto.getType());
+                        event.setSource(dto.getSource());
+                        event.setOrgId(dto.getOrgId());
+                        event.setRepo(dto.getRepo());
+                        event.setActor(dto.getActor());
+                        event.setTimestamp(dto.getTimestamp());
+                        event.setMetadata(dto.getMetadata());
+                        return event;
+                    })
+                    .toList();
 
-            if (!validateEvent(eventDto)) {
-                logger.warn("⚠️  Invalid event: {}", eventDto);
-                return;
-            }
+            if (events.isEmpty()) return;
 
-            EngineeringEvent event = new EngineeringEvent();
-            event.setId(UUID.randomUUID().toString());
-            event.setEventId(eventDto.getId());
-            event.setType(eventDto.getType());
-            event.setSource(eventDto.getSource());
-            event.setOrgId(eventDto.getOrgId());
-            event.setRepo(eventDto.getRepo());
-            event.setActor(eventDto.getActor());
-            event.setTimestamp(eventDto.getTimestamp());
-            event.setMetadata(eventDto.getMetadata());
+            // Store in PostgreSQL (Batch)
+            databaseService.storeEvents(events);
 
-            // Store in PostgreSQL
-            databaseService.storeEvent(event);
+            // Store in ClickHouse (Batch)
+            clickHouseService.storeEvents(events);
 
-            // Store in ClickHouse
-            clickHouseService.storeEvent(event);
-
-            logger.info("✅ Event processed: {} for org {}", event.getType(), event.getOrgId());
+            logger.info("✅ Batch of {} events processed successfully", events.size());
         } catch (Exception e) {
-            logger.error("❌ Failed to process event: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to process event", e);
+            logger.error("❌ Failed to process batch: {}", e.getMessage(), e);
         }
+    }
+
+    public void processAndStoreEvent(EngineeringEventDto eventDto) {
+        processAndStoreEvents(java.util.Collections.singletonList(eventDto));
     }
 
     private boolean validateEvent(EngineeringEventDto eventDto) {
