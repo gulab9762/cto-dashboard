@@ -3,6 +3,7 @@ package com.ctodashboard.apigateway.service;
 import com.ctodashboard.apigateway.model.AnalyticData;
 import com.ctodashboard.apigateway.model.Event;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,9 @@ import java.util.List;
 @Slf4j
 public class AnalyticsService {
 
-    private final JdbcTemplate clickHouseJdbcTemplate;
-
-    public AnalyticsService(@Qualifier("clickHouseJdbcTemplate") JdbcTemplate clickHouseJdbcTemplate) {
-        this.clickHouseJdbcTemplate = clickHouseJdbcTemplate;
-    }
+    @Autowired
+    @Qualifier("clickHouseJdbcTemplate")
+    private JdbcTemplate clickHouseJdbcTemplate;
 
     @SuppressWarnings("null")
     public List<Event> getRecentEvents(String orgId, int limit) {

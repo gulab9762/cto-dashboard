@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,31 +14,38 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import jakarta.annotation.PostConstruct;
+
 @Service
 public class ClickHouseService {
 
     private static final Logger logger = LoggerFactory.getLogger(ClickHouseService.class);
 
-    private final String baseUrl;
-    private final String user;
-    private final String password;
-    private final String database;
-    private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
+    private String baseUrl;
 
-    public ClickHouseService(
-            @Value("${clickhouse.host}") String host,
-            @Value("${clickhouse.port}") String port,
-            @Value("${clickhouse.user}") String user,
-            @Value("${clickhouse.password}") String password,
-            @Value("${clickhouse.database}") String database,
-            ObjectMapper objectMapper) {
+    @Value("${clickhouse.user}")
+    private String user;
+
+    @Value("${clickhouse.password}")
+    private String password;
+
+    @Value("${clickhouse.database}")
+    private String database;
+
+    private RestTemplate restTemplate = new RestTemplate();
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Value("${clickhouse.host}")
+    private String host;
+
+    @Value("${clickhouse.port}")
+    private String port;
+
+    @PostConstruct
+    public void init() {
         this.baseUrl = "http://" + host + ":" + port;
-        this.user = user;
-        this.password = password;
-        this.database = database;
-        this.restTemplate = new RestTemplate();
-        this.objectMapper = objectMapper;
     }
 
     private String executeQuery(String query) {

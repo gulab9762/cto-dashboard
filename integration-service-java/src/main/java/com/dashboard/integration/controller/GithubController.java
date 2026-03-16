@@ -7,6 +7,7 @@ import com.dashboard.integration.service.KafkaProducerService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,17 +22,14 @@ public class GithubController {
 
     private static final Logger log = LoggerFactory.getLogger(GithubController.class);
 
-    private final GithubMapper mapper;
-    private final KafkaProducerService kafkaProducerService;
-    private final String kafkaTopic;
+    @Autowired
+    private GithubMapper mapper;
 
-    public GithubController(GithubMapper mapper, 
-                            KafkaProducerService kafkaProducerService,
-                            @Value("${KAFKA_TOPIC:engineering-events}") String kafkaTopic) {
-        this.mapper = mapper;
-        this.kafkaProducerService = kafkaProducerService;
-        this.kafkaTopic = kafkaTopic;
-    }
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
+
+    @Value("${KAFKA_TOPIC:engineering-events}")
+    private String kafkaTopic;
 
     @PostMapping("/webhook")
     public ResponseEntity<WebhookResponseDto> webhook(

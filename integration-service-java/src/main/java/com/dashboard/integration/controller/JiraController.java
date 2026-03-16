@@ -7,6 +7,7 @@ import com.dashboard.integration.service.KafkaProducerService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,14 +27,11 @@ public class JiraController {
 
     private static final Logger log = LoggerFactory.getLogger(JiraController.class);
 
-    private final KafkaProducerService kafkaProducerService;
-    private final String kafkaTopic;
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
 
-    public JiraController(KafkaProducerService kafkaProducerService,
-                          @Value("${KAFKA_TOPIC:engineering-events}") String kafkaTopic) {
-        this.kafkaProducerService = kafkaProducerService;
-        this.kafkaTopic = kafkaTopic;
-    }
+    @Value("${KAFKA_TOPIC:engineering-events}")
+    private String kafkaTopic;
 
     @PostMapping("/webhook")
     public ResponseEntity<WebhookResponseDto> webhook(@RequestBody JsonNode payload) {

@@ -5,6 +5,7 @@ import com.cto.dashboard.eventprocessor.processor.EventProcessingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,11 @@ public class KafkaConsumerService {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
 
-    private final EventProcessingService eventProcessingService;
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private EventProcessingService eventProcessingService;
 
-    public KafkaConsumerService(EventProcessingService eventProcessingService, ObjectMapper objectMapper) {
-        this.eventProcessingService = eventProcessingService;
-        this.objectMapper = objectMapper;
-    }
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @KafkaListener(topics = "${kafka.topic.events:engineering-events}", groupId = "${spring.kafka.consumer.group-id:event-processor-group}")
     public void consume(String message) {

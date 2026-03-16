@@ -3,7 +3,7 @@ package com.ctodashboard.apigateway.controller;
 import com.ctodashboard.apigateway.model.AnalyticData;
 import com.ctodashboard.apigateway.model.Event;
 import com.ctodashboard.apigateway.service.AnalyticsService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 
 @Controller
-@RequiredArgsConstructor
 public class AnalyticsController {
 
-    private final AnalyticsService analyticsService;
+    @Autowired
+    private AnalyticsService analyticsService;
 
     @QueryMapping
     public List<Event> recentEvents(@Argument String orgId, @Argument Integer limit) {
