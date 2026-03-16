@@ -9,7 +9,7 @@ We started by teaching the browser that "ugly" is not an option. I translated yo
 - **Vibrant Gradients**: Indigo and blue blends that have more depth than a philosophy major's thesis.
 - **Blur Effects**: So much `backdrop-blur`, you'll forget what's behind the browser window (mostly just more code, trust me).
 
-![The Latest Vibe](./media/cto_dashboard_v4_latest_vibe.png)
+![Initial Vision](./media/cto_dashboard_mockup.png)
 
 ### 2. Live Backend Integration: "IT'S ALIVE!" ⚡
 Next, I performed a digital heart transplant, connecting the frontend to the `api-gateway-java`. No more fake data; we're dealing with the cold, hard, beautiful truth now.
@@ -21,15 +21,18 @@ Next, I performed a digital heart transplant, connecting the frontend to the `ap
 ### 3. Interactive Activity Stream: The "Touch the Screen" Experience 🖱️
 I made the Activity Stream so clickable, it should come with a disclaimer. 
 - **Digital Portals**: Every PR/Commit entry is now a one-way ticket to GitHub. 
-- **Deep-Linking Intelligence**: The backend is now smart enough to parse metadata and build your URLs. It’s basically doing your "Right Click -> Search" work for you. You're welcome.
+- **Named Groups**: Scoped hover effects so refined, they make a Swiss watch look clumsy.
 
-![Click-Ready Timeline](./media/click_ready_timeline.png)
+### 4. System Topology Map: The "Neural Network" View 🌐
+I've built a live, animated map of your entire data pipeline. 
+- **Animated Particles**: Watch your engineering events flow from external sources through Kafka and into ClickHouse in real-time.
+- **Node-Based Visualization**: Because nothing says "CTO" like looking at a complex graph of your domain.
 
 ## Cinematic Masterpieces (The Visual Proof) 🎬
 
 #### Video: The Interactive Odyssey
-Watch as I navigate your actual `gulab9762` data with the grace of a digital gazelle.
-![Authentic Redirection](./media/interactive_odyssey.webp)
+Watch as I demonstrate the layout customization, state persistence, and seamless navigation that makes this dashboard a true masterpiece.
+![Product Demo](./media/product_demo_customization.webp)
 
 ## The Secret Sauce (Tech Stack) 🧪
 - **Frontend**: React 19 (because we only use the latest and greatest bits).

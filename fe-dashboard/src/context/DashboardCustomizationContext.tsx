@@ -18,10 +18,10 @@ import { fetchUserPreferences, persistUserPreferences } from '../api/preferences
 const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: 'm1', type: 'metric', title: '1 PRs Merged',     theme: { glowColor: '#60a5fa', glowIntensity: 'medium' } },
   { id: 'm2', type: 'metric', title: '2 Avg Cycle Time', theme: { glowColor: '#8b5cf6', glowIntensity: 'medium' } },
-  { id: 'm3', type: 'metric', title: '3 Commits',        theme: { glowColor: '#f472b6', glowIntensity: 'low' } },
-  { id: 'm4', type: 'metric', title: '4 Reviews',        theme: { glowColor: '#fbbf24', glowIntensity: 'low' } },
+  { id: 'v1', type: 'chart',  title: '3 Velocity Trend', theme: { glowColor: '#3b82f6', glowIntensity: 'medium' } },
+  { id: 'p1', type: 'map',    title: '4 Data Pipeline', theme: { glowColor: '#60a5fa', glowIntensity: 'medium' } },
   { id: 's1', type: 'stability', title: '5 Executive Health', layout: { spanX: 2 } },
-  { id: 't1', type: 'timeline',  title: '6 Activity Stream',  layout: { spanX: 1 } },
+  { id: 't1', type: 'timeline',  title: '6 Engineering Timeline',  layout: { spanX: 1 } },
 ];
 
 // ─── Context shape ─────────────────────────────────────────────────────────────

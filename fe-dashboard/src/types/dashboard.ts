@@ -13,7 +13,7 @@ export interface WidgetTheme {
 
 export interface WidgetConfig {
   id: string;
-  type: 'metric' | 'timeline' | 'stability' | 'custom';
+  type: 'metric' | 'timeline' | 'stability' | 'chart' | 'map' | 'custom';
   hidden?: boolean;
   title?: string;
   layout?: WidgetLayout;

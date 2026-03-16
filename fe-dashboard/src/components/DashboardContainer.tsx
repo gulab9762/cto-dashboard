@@ -2,8 +2,6 @@ import { motion } from 'framer-motion';
 import {
   BarChart3,
   Clock,
-  Code2,
-  MessageSquare,
   Zap,
   Search,
   LayoutDashboard,
@@ -41,24 +39,19 @@ function arraySwap<T>(array: T[], indexA: number, indexB: number): T[] {
 }
 
 import PremiumMetricCard from './PremiumMetricCard';
-import UnifiedTimeline, { type TimelineEvent } from './UnifiedTimeline';
 import ExecutiveStabilityView from './ExecutiveStabilityView';
 import DraggableWidget from './DraggableWidget';
 import CustomizationPanel from './CustomizationPanel';
 import Sidebar from './Sidebar';
+import VelocityChart from './VelocityChart';
+import EngineeringTimeline from './EngineeringTimeline';
+import SystemTopologyMap from './SystemTopologyMap';
 import { DashboardCustomizationProvider, useDashboardCustomization } from '../context/DashboardCustomizationContext';
 import { MetricsService } from '../services/metrics.service';
 import type { WidgetConfig } from '../types/dashboard';
 import type { WidgetSlotSize } from '../types/customization';
 
-// ─── Mock data (fallback) ──────────────────────────────────────────────────────
-const MOCK_TIMELINE: TimelineEvent[] = [
-  { id: '1', type: 'deployment', title: 'Production Deploy - API Gateway', timestamp: '10m ago', status: 'success', description: 'v2.4.1 stable. No degradation in latency reported.' },
-  { id: '2', type: 'pr', title: 'Bugfix: Kafka lag in event-processor', timestamp: '45m ago', status: 'info', description: 'Merged by @gulab9762. Optimized batch processing sizes.' },
-  { id: '3', type: 'incident', title: 'PostgreSQL Connection Spike', timestamp: '2h ago', status: 'warning', description: 'Slight latency increase in US-East region. Resolved via auto-scaling.' },
-  { id: '4', type: 'deployment', title: 'Staging Deploy - Frontend', timestamp: '5h ago', status: 'success', description: 'v3.0.0-beta. Testing new glassmorphism components.' },
-  { id: '5', type: 'system', title: 'Scheduled Maintenance Complete', timestamp: '1d ago', status: 'success', description: 'Cluster nodes upgraded to latest security patch.' },
-];
+// ─── Inner dashboard ───────────────────────────────────────────────────────────
 
 // ─── Inner dashboard ───────────────────────────────────────────────────────────
 const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = ({ orgId, onOrgChange }) => {
@@ -96,18 +89,16 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
 
   const handleKeyPress = (e: KeyboardEvent) => { if (e.key === 'Enter') fetchMetrics(); };
 
-  const mappedTimeline: TimelineEvent[] = (metrics?.recentEvents || []).map((e: any) => ({
+  const mappedTimeline = (metrics?.recentEvents || []).map((e: any) => ({
     id: e.id,
     type: e.type.toLowerCase().includes('pr') ? 'pr'
-      : e.type.toLowerCase().includes('deploy') ? 'deployment'
-        : e.type.toLowerCase().includes('incident') ? 'incident'
+      : e.type.toLowerCase().includes('deploy') ? 'deploy'
+        : e.type.toLowerCase().includes('incident') ? 'alert'
           : 'system',
     title: `${e.type.split('_').map((s: string) => s.charAt(0) + s.slice(1).toLowerCase()).join(' ')}: ${e.repo}`,
-    timestamp: new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    status: e.type.toLowerCase().includes('error') ? 'error'
-      : e.type.toLowerCase().includes('warn') ? 'warning'
-        : 'success',
-    description: `Triggered by ${e.actor} via ${e.source}`,
+    time: new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    status: e.status?.toLowerCase() || 'success',
+    actor: e.actor || 'System',
     url: e.url,
   }));
 
@@ -130,8 +121,6 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
   const handleDragStart = ({ active }: DragStartEvent) => {
     setActiveId(String(active.id));
   };
-
-  // handleDragOver removed as per instruction
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (over && active.id !== over.id) {
@@ -170,21 +159,15 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
           slotSize={slotSize}
         />
       );
-      case 'm3': return (
-        <PremiumMetricCard
-          config={widgetList.find(w => w.id === 'm3')!}
-          value={metrics?.commitCount || 0}
-          icon={<Code2 className="h-5 w-5" />}
-          trend={{ value: 4, direction: 'up', label: 'vs last week' }}
+      case 'v1': return (
+        <VelocityChart
+          config={widgetList.find(w => w.id === 'v1')!}
           slotSize={slotSize}
         />
       );
-      case 'm4': return (
-        <PremiumMetricCard
-          config={widgetList.find(w => w.id === 'm4')!}
-          value={metrics?.reviewCount || 0}
-          icon={<MessageSquare className="h-5 w-5" />}
-          trend={{ value: 2, direction: 'neutral', label: 'no change' }}
+      case 'p1': return (
+        <SystemTopologyMap
+          config={widgetList.find(w => w.id === 'p1')!}
           slotSize={slotSize}
         />
       );
@@ -196,9 +179,9 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
         />
       );
       case 't1': return (
-        <UnifiedTimeline
+        <EngineeringTimeline
           config={widgetList.find(w => w.id === 't1')!}
-          events={mappedTimeline.length > 0 ? mappedTimeline : MOCK_TIMELINE}
+          events={mappedTimeline}
           slotSize={slotSize}
         />
       );
@@ -440,7 +423,7 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
 
 // ─── Exported container ────────────────────────────────────────────────────────
 const DashboardContainer: FC = () => {
-  const [orgId, setOrgId] = useState('acme-corp');
+  const [orgId, setOrgId] = useState('gulab9762');
   return (
     <DashboardCustomizationProvider userId={orgId}>
       <DashboardInner orgId={orgId} onOrgChange={setOrgId} />
