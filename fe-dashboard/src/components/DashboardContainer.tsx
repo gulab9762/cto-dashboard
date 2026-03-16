@@ -1,100 +1,150 @@
 import { useState, useEffect, type FC, type KeyboardEvent } from 'react';
-import MetricCard from './MetricCard';
-import SystemsHealth from './SystemsHealth';
-import { MetricsService } from '../services/metrics.service';
-import type { MetricsData } from '../types/metrics';
+import { 
+  BarChart3, 
+  Clock, 
+  Code2, 
+  MessageSquare, 
+  Zap, 
+  Search,
+  LayoutDashboard
+} from 'lucide-react';
+
+import PremiumMetricCard from './PremiumMetricCard';
+import UnifiedTimeline, { type TimelineEvent } from './UnifiedTimeline';
+import ExecutiveStabilityView from './ExecutiveStabilityView';
+import type { WidgetConfig } from '../types/dashboard';
+
+// Dummy data for demonstration
+const MOCK_TIMELINE: TimelineEvent[] = [
+  { id: '1', type: 'deployment', title: 'Production Deploy - API Gateway', timestamp: '10m ago', status: 'success', description: 'v2.4.1 stable. No degradation in latency reported.' },
+  { id: '2', type: 'pr', title: 'Bugfix: Kafka lag in event-processor', timestamp: '45m ago', status: 'info', description: 'Merged by @gulab9762. Optimized batch processing sizes.' },
+  { id: '3', type: 'incident', title: 'PostgreSQL Connection Spike', timestamp: '2h ago', status: 'warning', description: 'Slight latency increase in US-East region. Resolved via auto-scaling.' },
+  { id: '4', type: 'deployment', title: 'Staging Deploy - Frontend', timestamp: '5h ago', status: 'success', description: 'v3.0.0-beta. Testing new glassmorphism components.' },
+  { id: '5', type: 'system', title: 'Scheduled Maintenance Complete', timestamp: '1d ago', status: 'success', description: 'Cluster nodes upgraded to latest security patch.' },
+];
+
+const MOCK_STABILITY = [
+  { label: 'Uptime', value: '99.99%', status: 'optimal' as const },
+  { label: 'Error Rate', value: '0.02%', status: 'optimal' as const },
+  { label: 'Avg Latency', value: '142ms', status: 'warning' as const },
+];
+
+const WIDGET_CONFIGS: WidgetConfig[] = [
+  { id: 'm1', type: 'metric', title: 'PRs Merged', theme: { glowColor: '#60a5fa', glowIntensity: 'medium' } },
+  { id: 'm2', type: 'metric', title: 'Avg Cycle Time', theme: { glowColor: '#8b5cf6', glowIntensity: 'medium' } },
+  { id: 'm3', type: 'metric', title: 'Commits', theme: { glowColor: '#f472b6', glowIntensity: 'low' } },
+  { id: 'm4', type: 'metric', title: 'Reviews', theme: { glowColor: '#fbbf24', glowIntensity: 'low' } },
+  { id: 's1', type: 'stability', title: 'Executive Health', layout: { spanX: 2 } },
+  { id: 't1', type: 'timeline', title: 'Activity Stream', layout: { spanX: 1 } },
+];
 
 const DashboardContainer: FC = () => {
     const [orgId, setOrgId] = useState('acme-corp');
-    const [metrics, setMetrics] = useState<MetricsData | null>(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchMetrics = async () => {
-        if (!orgId.trim()) return;
-        
-        setLoading(true);
-        setError(null);
-        
-        try {
-            const data = await MetricsService.getOrganizationMetrics(orgId);
-            setMetrics(data);
-        } catch (err: any) {
-            console.error('Fetch error:', err);
-            setError(err.message || 'Failed to fetch metrics');
-            setMetrics(null);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Initial fetch
-    useEffect(() => {
-        fetchMetrics();
-    }, []);
-
+    
     const handleKeyPress = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') fetchMetrics();
+        if (e.key === 'Enter') setLoading(true); // Simulate loading
     };
+
+    useEffect(() => {
+      if (loading) {
+        const timer = setTimeout(() => setLoading(false), 1500);
+        return () => clearTimeout(timer);
+      }
+    }, [loading]);
 
     return (
-        <div className="container">
-            <header>
-                <h1>CTO Dashboard</h1>
-                <p>Real-time engineering metrics & analytics overlay (React Edition)</p>
+        <div className="min-h-screen bg-dashboard-bg text-white p-6 md:p-12">
+            <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-accent-blue">
+                      <LayoutDashboard className="h-5 w-5" />
+                      <span className="text-xs font-bold uppercase tracking-widest opacity-70">Engineering Intel</span>
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-white/80 to-white/40 bg-clip-text text-transparent">
+                      CTO Dashboard <span className="text-accent-blue">.</span>
+                    </h1>
+                    <p className="text-text-muted font-medium">Real-time engineering metrics & stability overlay</p>
+                </div>
+                
+                <div className="flex items-center gap-3 backdrop-blur-md bg-white/5 border border-white/10 p-1.5 rounded-2xl shadow-xl">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+                    <input 
+                        type="text" 
+                        value={orgId}
+                        onChange={(e) => setOrgId(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        className="bg-transparent border-none focus:ring-0 text-sm pl-9 pr-4 py-2 w-64 placeholder:text-text-muted/50"
+                        placeholder="Search Organization..." 
+                    />
+                  </div>
+                  <button 
+                    onClick={() => setLoading(true)} 
+                    disabled={loading}
+                    className="bg-accent-blue hover:bg-accent-blue/80 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all shadow-lg shadow-accent-blue/20 disabled:opacity-50"
+                  >
+                    {loading ? 'Analyzing...' : 'Refresh'}
+                  </button>
+                </div>
             </header>
-            
-            <div className="input-section">
-                <input 
-                    type="text" 
-                    value={orgId}
-                    onChange={(e) => setOrgId(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Enter Organization ID (e.g. acme-corp)" 
-                />
-                <button onClick={fetchMetrics} disabled={loading}>
-                    {loading ? 'Analyzing...' : 'Fetch Metrics'}
-                </button>
-            </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {loading ? (
+                <div className="flex flex-col items-center justify-center h-[50vh] gap-6">
+                    <div className="relative h-16 w-16">
+                      <div className="absolute inset-0 rounded-full border-4 border-white/5" />
+                      <div className="absolute inset-0 rounded-full border-4 border-accent-blue border-t-transparent animate-spin" />
+                      <Zap className="absolute inset-0 m-auto h-6 w-6 text-accent-blue animate-pulse" />
+                    </div>
+                    <p className="text-text-muted animate-pulse font-medium tracking-wide">Crunching engineering data...</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Metrics Section */}
+                    <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <PremiumMetricCard 
+                            config={WIDGET_CONFIGS[0]}
+                            value={142}
+                            icon={<BarChart3 className="h-5 w-5" />}
+                            trend={{ value: 12, direction: 'up', label: 'vs last month' }}
+                        />
+                        <PremiumMetricCard 
+                            config={WIDGET_CONFIGS[1]}
+                            value={4.2}
+                            unit="hrs"
+                            icon={<Clock className="h-5 w-5" />}
+                            trend={{ value: 8.5, direction: 'down', label: 'vs last month' }}
+                        />
+                        <PremiumMetricCard 
+                            config={WIDGET_CONFIGS[2]}
+                            value="1,280"
+                            icon={<Code2 className="h-5 w-5" />}
+                            trend={{ value: 4, direction: 'up', label: 'vs last week' }}
+                        />
+                        <PremiumMetricCard 
+                            config={WIDGET_CONFIGS[3]}
+                            value={86}
+                            icon={<MessageSquare className="h-5 w-5" />}
+                            trend={{ value: 2, direction: 'neutral', label: 'no change' }}
+                        />
+                        
+                        <div className="sm:col-span-2">
+                          <ExecutiveStabilityView 
+                              config={WIDGET_CONFIGS[4]}
+                              metrics={MOCK_STABILITY}
+                          />
+                        </div>
+                    </div>
 
-            {loading && (
-                <div className="loader">
-                    <div className="spinner"></div>
-                    <p>Crunching engineering data...</p>
+                    {/* Timeline Section */}
+                    <div className="md:col-span-1">
+                        <UnifiedTimeline 
+                            config={WIDGET_CONFIGS[5]}
+                            events={MOCK_TIMELINE}
+                        />
+                    </div>
                 </div>
             )}
-
-            <div className="metrics-grid">
-                <MetricCard 
-                    title="PRs Merged (Last 30 Days)"
-                    value={metrics?.prsMerged ?? '--'}
-                    icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>}
-                />
-                <MetricCard 
-                    title="Avg Cycle Time (Last 30 Days)"
-                    value={metrics?.averageCycleTime ? metrics.averageCycleTime.toFixed(1) : '--'}
-                    unit="hrs"
-                    icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>}
-                />
-                <MetricCard 
-                    title="Commits Created (Last 30 Days)"
-                    value={metrics?.commitCount ?? '--'}
-                    icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path></svg>}
-                />
-                <MetricCard 
-                    title="Code Reviews (Last 30 Days)"
-                    value={metrics?.reviewCount ?? '--'}
-                    icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>}
-                />
-            </div>
-
-            <SystemsHealth 
-                deployments={metrics?.deployments || []} 
-                incidents={metrics?.incidents || []} 
-                isLoading={loading}
-            />
         </div>
     );
 };
