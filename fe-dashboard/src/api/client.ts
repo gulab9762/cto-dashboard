@@ -9,8 +9,10 @@ interface GraphQLResponse<T> {
     errors?: GraphQLError[];
 }
 
+import { config } from '../config';
+
 export async function graphqlRequest<T>(query: string, variables: Record<string, any> = {}): Promise<T> {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/graphql';
+    const apiUrl = config.apiUrl;
     
     const response = await fetch(apiUrl, {
         method: 'POST',

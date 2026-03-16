@@ -21,6 +21,7 @@ type Metrics {
   prsMerged: Int
   averageCycleTime: Float
   reviewCount: Int
+  commitCount: Int
 }
 
 type Deployment {

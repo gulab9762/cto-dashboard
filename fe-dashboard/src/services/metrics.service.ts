@@ -9,13 +9,21 @@ export class MetricsService {
                     metrics(days: 30) {
                         prsMerged
                         averageCycleTime
-                        # Placeholder for future metrics
-                        # dora {
-                        #     deploymentFrequency
-                        #     leadTimeForChanges
-                        #     changeFailureRate
-                        #     mttr
-                        # }
+                        reviewCount
+                        commitCount
+                    }
+                }
+                deployments(orgId: $orgId, period: DAILY) {
+                    date
+                    count
+                    successRate
+                }
+                incidents(orgId: $orgId) {
+                    date
+                    count
+                    correlatedEvents {
+                        type
+                        actor
                     }
                 }
             }
@@ -26,7 +34,11 @@ export class MetricsService {
         if (!response.organization?.metrics) {
             throw new Error('Organization not found or metrics unavailable.');
         }
+
+        const metrics = response.organization.metrics;
+        metrics.deployments = response.deployments;
+        metrics.incidents = response.incidents;
         
-        return response.organization.metrics;
+        return metrics;
     }
 }

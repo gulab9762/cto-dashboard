@@ -33,19 +33,22 @@ public class MetricsService {
         
         int prsMerged = 0;
         int reviewCount = 0;
+        int commitCount = 0;
         
         for (EventMetricEntity m : metricsList) {
             if ("pr_merged".equalsIgnoreCase(m.getMetricType())) {
                 prsMerged += m.getValue();
             } else if ("pr_reviewed".equalsIgnoreCase(m.getMetricType())) {
                 reviewCount += m.getValue();
+            } else if ("commit_created".equalsIgnoreCase(m.getMetricType())) {
+                commitCount += m.getValue();
             }
         }
         
         // Simplified cycle time calculation for demo purposes
         double averageCycleTime = prsMerged > 0 ? 24.5 : 0.0;
         
-        return new Metrics(prsMerged, averageCycleTime, reviewCount);
+        return new Metrics(prsMerged, averageCycleTime, reviewCount, commitCount);
     }
 
     public List<Deployment> getDeployments(String orgId, String period) {
