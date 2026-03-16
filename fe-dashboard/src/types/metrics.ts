@@ -49,10 +49,25 @@ export interface MetricsData {
     incidents?: Incident[];
 }
 
+export interface Event {
+    id: string;
+    type: string;
+    source: string;
+    actor: string;
+    timestamp: string;
+    repo: string;
+}
+
+export interface MetricTrend {
+    date: string;
+    value: number;
+}
+
 export interface OrganizationMetricsResponse {
     organization: {
         metrics: MetricsData;
     };
     deployments?: Deployment[];
     incidents?: Incident[];
+    recentEvents?: Event[];
 }

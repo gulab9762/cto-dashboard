@@ -26,6 +26,14 @@ export class MetricsService {
                         actor
                     }
                 }
+                recentEvents(orgId: $orgId, limit: 10) {
+                    id
+                    type
+                    source
+                    actor
+                    timestamp
+                    repo
+                }
             }
         `;
 
@@ -38,6 +46,7 @@ export class MetricsService {
         const metrics = response.organization.metrics;
         metrics.deployments = response.deployments;
         metrics.incidents = response.incidents;
+        (metrics as any).recentEvents = response.recentEvents;
         
         return metrics;
     }

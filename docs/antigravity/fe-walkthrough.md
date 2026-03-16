@@ -18,17 +18,21 @@ I implemented the following parameterized components:
 ### 3. Configuration-Driven Architecture
 As requested, the components are fully parameterized. The dashboard layout is generated from a `WidgetConfig` array, making it easy to implement drag-and-drop or custom themes in the future.
 
-## Visual Verification
+### Live Data Integration
+The dashboard is now connected to the real `api-gateway-java` service, fetching live metrics from ClickHouse.
+- **Real Metrics**: PRs, Commits, and Cycle Time are now non-zero and live.
+- **Activity Stream**: Dynamically populated with events like `PR_REVIEW_COMMENT_CREATED`.
+- **Auto-Refresh**: Pulse active, refreshing all components every 30 seconds.
 
-### Final Dashboard
-![Final Dashboard Screenshot](./media/cto_dashboard_v4_final_1773679771899.png)
+![Live Dashboard Screenshot](./media/cto_dashboard_live_ok_1773680874832.png)
 
 ### Video Walkthrough
-````carousel
+
+#### Dashboard Recording
 ![Dashboard Recording](./media/final_dashboard_verification_v4_1773679740611.webp)
-<!-- slide -->
+
+#### Component Interaction
 ![Component Interaction](./media/final_dashboard_capture_1773679497984.webp)
-````
 
 ## Technical Details
 - **Frontend**: React 19 + Vite + TypeScript.

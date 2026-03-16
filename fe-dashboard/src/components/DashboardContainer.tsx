@@ -12,6 +12,7 @@ import {
 import PremiumMetricCard from './PremiumMetricCard';
 import UnifiedTimeline, { type TimelineEvent } from './UnifiedTimeline';
 import ExecutiveStabilityView from './ExecutiveStabilityView';
+import { MetricsService } from '../services/metrics.service';
 import type { WidgetConfig } from '../types/dashboard';
 
 // Dummy data for demonstration
@@ -23,12 +24,7 @@ const MOCK_TIMELINE: TimelineEvent[] = [
   { id: '5', type: 'system', title: 'Scheduled Maintenance Complete', timestamp: '1d ago', status: 'success', description: 'Cluster nodes upgraded to latest security patch.' },
 ];
 
-const MOCK_STABILITY = [
-  { label: 'Uptime', value: '99.99%', status: 'optimal' as const },
-  { label: 'Error Rate', value: '0.02%', status: 'optimal' as const },
-  { label: 'Avg Latency', value: '142ms', status: 'warning' as const },
-];
-
+// MOCK_STABILITY removed as it is now dynamic
 const WIDGET_CONFIGS: WidgetConfig[] = [
   { id: 'm1', type: 'metric', title: 'PRs Merged', theme: { glowColor: '#60a5fa', glowIntensity: 'medium' } },
   { id: 'm2', type: 'metric', title: 'Avg Cycle Time', theme: { glowColor: '#8b5cf6', glowIntensity: 'medium' } },
@@ -41,17 +37,56 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
 const DashboardContainer: FC = () => {
     const [orgId, setOrgId] = useState('acme-corp');
     const [loading, setLoading] = useState(false);
-    
-    const handleKeyPress = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') setLoading(true); // Simulate loading
+    const [metrics, setMetrics] = useState<any>(null);
+    const [refreshPulse, setRefreshPulse] = useState(0);
+
+    const fetchMetrics = async () => {
+        if (!orgId.trim()) return;
+        setLoading(true);
+        try {
+            const data = await MetricsService.getOrganizationMetrics(orgId);
+            setMetrics(data);
+        } catch (err) {
+            console.error('Failed to fetch metrics:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
+    // Auto-refresh heartbeat every 30 seconds
     useEffect(() => {
-      if (loading) {
-        const timer = setTimeout(() => setLoading(false), 1500);
-        return () => clearTimeout(timer);
-      }
-    }, [loading]);
+        const interval = setInterval(() => {
+            setRefreshPulse(p => p + 1);
+        }, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        fetchMetrics();
+    }, [orgId, refreshPulse]);
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+        if (e.key === 'Enter') fetchMetrics();
+    };
+
+    // Map backend events to Timeline structure
+    const mappedTimeline: TimelineEvent[] = (metrics?.recentEvents || []).map((e: any) => ({
+        id: e.id,
+        type: e.type.toLowerCase().includes('pr') ? 'pr' : 
+              e.type.toLowerCase().includes('deploy') ? 'deployment' : 
+              e.type.toLowerCase().includes('incident') ? 'incident' : 'system',
+        title: `${e.type.split('_').map((s: string) => s.charAt(0) + s.slice(1).toLowerCase()).join(' ')}: ${e.repo}`,
+        timestamp: new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: e.type.toLowerCase().includes('error') ? 'error' : 
+                e.type.toLowerCase().includes('warn') ? 'warning' : 'success',
+        description: `Triggered by ${e.actor} via ${e.source}`
+    }));
+
+    const stabilityMetrics = [
+        { label: 'Recent Deploys', value: `${metrics?.deployments?.length || 0}`, status: 'optimal' as const },
+        { label: 'Success Rate', value: metrics?.deployments?.[0]?.successRate ? `${(metrics.deployments[0].successRate * 100).toFixed(0)}%` : '100%', status: 'optimal' as const },
+        { label: 'Active Incidents', value: `${metrics?.incidents?.length || 0}`, status: (metrics?.incidents?.length || 0) > 0 ? 'critical' as const : 'optimal' as const },
+    ];
 
     return (
         <div className="min-h-screen bg-dashboard-bg text-white p-6 md:p-12">
@@ -80,7 +115,7 @@ const DashboardContainer: FC = () => {
                     />
                   </div>
                   <button 
-                    onClick={() => setLoading(true)} 
+                    onClick={fetchMetrics} 
                     disabled={loading}
                     className="bg-accent-blue hover:bg-accent-blue/80 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all shadow-lg shadow-accent-blue/20 disabled:opacity-50"
                   >
@@ -89,7 +124,7 @@ const DashboardContainer: FC = () => {
                 </div>
             </header>
 
-            {loading ? (
+            {loading && !metrics ? (
                 <div className="flex flex-col items-center justify-center h-[50vh] gap-6">
                     <div className="relative h-16 w-16">
                       <div className="absolute inset-0 rounded-full border-4 border-white/5" />
@@ -100,30 +135,29 @@ const DashboardContainer: FC = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Metrics Section */}
                     <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <PremiumMetricCard 
                             config={WIDGET_CONFIGS[0]}
-                            value={142}
+                            value={metrics?.prsMerged ?? 0}
                             icon={<BarChart3 className="h-5 w-5" />}
                             trend={{ value: 12, direction: 'up', label: 'vs last month' }}
                         />
                         <PremiumMetricCard 
                             config={WIDGET_CONFIGS[1]}
-                            value={4.2}
+                            value={metrics?.averageCycleTime?.toFixed(1) || 0}
                             unit="hrs"
                             icon={<Clock className="h-5 w-5" />}
                             trend={{ value: 8.5, direction: 'down', label: 'vs last month' }}
                         />
                         <PremiumMetricCard 
                             config={WIDGET_CONFIGS[2]}
-                            value="1,280"
+                            value={metrics?.commitCount || 0}
                             icon={<Code2 className="h-5 w-5" />}
                             trend={{ value: 4, direction: 'up', label: 'vs last week' }}
                         />
                         <PremiumMetricCard 
                             config={WIDGET_CONFIGS[3]}
-                            value={86}
+                            value={metrics?.reviewCount || 0}
                             icon={<MessageSquare className="h-5 w-5" />}
                             trend={{ value: 2, direction: 'neutral', label: 'no change' }}
                         />
@@ -131,16 +165,15 @@ const DashboardContainer: FC = () => {
                         <div className="sm:col-span-2">
                           <ExecutiveStabilityView 
                               config={WIDGET_CONFIGS[4]}
-                              metrics={MOCK_STABILITY}
+                              metrics={stabilityMetrics}
                           />
                         </div>
                     </div>
 
-                    {/* Timeline Section */}
                     <div className="md:col-span-1">
                         <UnifiedTimeline 
                             config={WIDGET_CONFIGS[5]}
-                            events={MOCK_TIMELINE}
+                            events={mappedTimeline.length > 0 ? mappedTimeline : MOCK_TIMELINE}
                         />
                     </div>
                 </div>
