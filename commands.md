@@ -10,10 +10,20 @@ Use this when you update the `.env` file but haven't changed any code.
 docker-compose up -d <service-name>
 ```
 
-### Rebuild & Restart
-Use this when you've modified the Java source code.
+### Rebuild & Restart (Individual Service)
+Use this when you've modified a specific service.
 ```bash
 docker-compose up -d --build <service-name>
+```
+
+### Unified Pipeline (All Services)
+Use the provided script to rebuild and restart all or specific components.
+```bash
+# Rebuild and restart everything
+./scripts/deploy.sh all
+
+# Rebuild and restart a specific service
+./scripts/deploy.sh fe-dashboard
 ```
 
 ---
