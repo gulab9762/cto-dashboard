@@ -36,7 +36,7 @@ public class GithubController {
             @RequestHeader("x-github-event") String eventType,
             @RequestBody JsonNode payload) {
 
-        log.info("📨 Received GitHub webhook: {}", eventType);
+        log.info("📨 Received GitHub webhook: {}, payload {}", eventType, payload);
 
         EngineeringEvent event = mapper.map(eventType, payload);
 

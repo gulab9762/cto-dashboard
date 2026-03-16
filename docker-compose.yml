@@ -21,6 +21,8 @@ services:
       - "29092:29092"
     environment:
       REDPANDA_ADVERTISE_KAFKA_API: redpanda:29092
+    networks:
+      - cto-network
 
   # Metrics Database
   postgres:
@@ -39,6 +41,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - cto-network
 
   # Analytics Database
   clickhouse:
@@ -59,6 +63,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - cto-network
 
   # Integration Service (Webhook handler)
   integration-service:
@@ -104,6 +110,8 @@ services:
         condition: service_healthy
       clickhouse:
         condition: service_healthy
+    networks:
+      - cto-network
 
   # API Gateway (Java)
   api-gateway-java:
@@ -126,6 +134,8 @@ services:
         condition: service_healthy
       clickhouse:
         condition: service_healthy
+    networks:
+      - cto-network
 
 volumes:
   postgres_data:
