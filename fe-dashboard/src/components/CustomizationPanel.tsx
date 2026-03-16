@@ -29,18 +29,21 @@ const CustomizationPanel: FC<CustomizationPanelProps> = ({ isOpen, onClose }) =>
             initial={{ x: '100%', opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '100%', opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed right-0 top-0 h-full w-80 bg-[#161b22]/95 border-l border-white/10 backdrop-blur-xl z-50 flex flex-col shadow-2xl"
+            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+            className="fixed right-0 top-0 h-full w-80 bg-zinc-950/95 border-l border-white/5 backdrop-blur-2xl z-50 flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.5)]"
           >
+            {/* Noise texture overlay */}
+            <div className="absolute inset-0 bg-noise opacity-[0.03] pointer-events-none" />
+
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <div className="relative flex items-center justify-between px-6 py-6 border-b border-white/5">
               <div>
-                <h2 className="text-sm font-bold text-white tracking-wide">Customize Dashboard</h2>
-                <p className="text-xs text-white/40 mt-0.5">Drag widgets, tweak theme, save.</p>
+                <h2 className="text-xs font-black text-white uppercase tracking-[0.2em]">Interface Engine</h2>
+                <p className="text-[10px] text-white/40 mt-1 font-bold tracking-wide uppercase">Core Visualization Config</p>
               </div>
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                className="p-2 rounded-xl bg-white/5 text-white/30 hover:text-white hover:bg-white/10 transition-all border border-white/5"
                 aria-label="Close panel"
               >
                 <X className="w-4 h-4" />
@@ -48,111 +51,137 @@ const CustomizationPanel: FC<CustomizationPanelProps> = ({ isOpen, onClose }) =>
             </div>
 
             {/* Scrollable body */}
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
+            <div className="relative flex-1 overflow-y-auto px-6 py-8 space-y-10 custom-scrollbar">
 
               {/* Accent Color */}
-              <section>
-                <label className="text-xs font-semibold text-white/50 uppercase tracking-widest block mb-3">Accent Color</label>
-                <div className="grid grid-cols-6 gap-2 mb-3">
+              <section className="space-y-4">
+                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] block">Primary Accent</label>
+                <div className="grid grid-cols-5 gap-3">
                   {ACCENT_PRESETS.map((p) => (
                     <button
                       key={p.value}
                       onClick={() => updateTheme({ accentColor: p.value })}
                       title={p.label}
-                      className={`w-8 h-8 rounded-full transition-all border-2 ${theme.accentColor === p.value ? 'border-white scale-110 shadow-lg' : 'border-transparent hover:scale-105'}`}
-                      style={{ background: p.value, boxShadow: theme.accentColor === p.value ? `0 0 12px ${p.value}88` : undefined }}
+                      className={`relative w-8 h-8 rounded-full transition-all group ${theme.accentColor === p.value ? 'scale-110 shadow-[0_0_20px_rgba(0,0,0,0.8)]' : 'hover:scale-105 opacity-60 hover:opacity-100'}`}
+                      style={{ background: p.value }}
                       aria-label={p.label}
-                    />
+                    >
+                      {theme.accentColor === p.value && (
+                         <div className="absolute inset-0 rounded-full border-2 border-white ring-2 ring-white/10" />
+                      )}
+                    </button>
                   ))}
                 </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-white/40">Custom:</label>
-                  <input
-                    type="color"
-                    value={theme.accentColor}
-                    onChange={(e) => updateTheme({ accentColor: e.target.value })}
-                    className="w-8 h-8 rounded-md border border-white/20 bg-transparent cursor-pointer"
-                    aria-label="Custom accent color"
-                  />
-                  <span className="text-xs text-white/30 font-mono">{theme.accentColor}</span>
+                <div className="flex items-center gap-3 bg-white/[0.03] p-2 rounded-xl border border-white/5">
+                  <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-white/10">
+                    <input
+                      type="color"
+                      value={theme.accentColor}
+                      onChange={(e) => updateTheme({ accentColor: e.target.value })}
+                      className="absolute inset-[-4px] w-[calc(100%+8px)] h-[calc(100%+8px)] bg-transparent cursor-pointer"
+                      aria-label="Custom accent color"
+                    />
+                  </div>
+                  <span className="text-[10px] text-white/60 font-black tracking-widest uppercase">{theme.accentColor}</span>
+                  <span className="ml-auto text-[10px] text-white/20 font-bold uppercase tracking-widest">Hex Value</span>
                 </div>
               </section>
 
               {/* Background */}
-              <section>
-                <label className="text-xs font-semibold text-white/50 uppercase tracking-widest block mb-3">Background</label>
-                <div className="flex flex-col gap-2">
+              <section className="space-y-4">
+                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] block">Environment</label>
+                <div className="flex flex-col gap-2.5">
                   {BG_PRESETS.map((bg) => (
                     <button
                       key={bg.value}
                       onClick={() => updateTheme({ dashboardBg: bg.value })}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left ${theme.dashboardBg === bg.value ? 'border-[var(--accent-color)] bg-white/5' : 'border-white/10 hover:border-white/20'}`}
+                      className={`group flex items-center gap-4 px-4 py-3 rounded-2xl border transition-all text-left ${theme.dashboardBg === bg.value ? 'border-white/10 bg-white/5 shadow-xl' : 'border-white/[0.02] hover:border-white/10 hover:bg-white/[0.02]'}`}
                     >
-                      <span
-                        className="w-8 h-8 rounded-lg flex-shrink-0"
+                      <div
+                        className="w-10 h-10 rounded-xl flex-shrink-0 border border-white/10 group-hover:scale-105 transition-transform"
                         style={{ background: bg.gradient }}
                       />
-                      <span className="text-sm text-white/80">{bg.label}</span>
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-black text-white uppercase tracking-widest">{bg.label}</span>
+                        <span className="text-[9px] font-bold text-white/30 uppercase tracking-tighter">Preset Gradient</span>
+                      </div>
                       {theme.dashboardBg === bg.value && (
-                        <Check className="w-4 h-4 text-[var(--accent-color)] ml-auto" />
+                        <div className="w-5 h-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center ml-auto shadow-inner">
+                          <Check className="w-3 h-3 text-[var(--accent-color)]" />
+                        </div>
                       )}
                     </button>
                   ))}
                 </div>
               </section>
 
-              {/* Card Opacity */}
-              <section>
-                <label className="text-xs font-semibold text-white/50 uppercase tracking-widest block mb-3">
-                  Card Opacity — <span className="text-white/70">{Math.round(theme.cardOpacity * 100)}%</span>
-                </label>
-                <input
-                  type="range"
-                  min={0.1}
-                  max={0.9}
-                  step={0.05}
-                  value={theme.cardOpacity}
-                  onChange={(e) => updateTheme({ cardOpacity: parseFloat(e.target.value) })}
-                  className="w-full accent-[var(--accent-color)] cursor-pointer"
-                  aria-label="Card opacity"
-                />
-              </section>
+              {/* Parameters */}
+              <section className="space-y-6">
+                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] block">Interface Parameters</label>
+                
+                <div className="space-y-3">
+                   <div className="flex justify-between items-center px-1">
+                     <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Module Opacity</span>
+                     <span className="text-[10px] font-black text-white/80 uppercase">{Math.round(theme.cardOpacity * 100)}%</span>
+                   </div>
+                   <input
+                    type="range"
+                    min={0.1}
+                    max={0.9}
+                    step={0.05}
+                    value={theme.cardOpacity}
+                    onChange={(e) => updateTheme({ cardOpacity: parseFloat(e.target.value) })}
+                    className="w-full accent-[var(--accent-color)] cursor-pointer h-1.5 bg-white/10 rounded-full appearance-none"
+                    aria-label="Card opacity"
+                  />
+                </div>
 
-              {/* Glow Intensity */}
-              <section>
-                <label className="text-xs font-semibold text-white/50 uppercase tracking-widest block mb-3">Glow Intensity</label>
-                <div className="flex gap-2">
-                  {GLOW_OPTIONS.map((g) => (
-                    <button
-                      key={g}
-                      onClick={() => updateTheme({ glowIntensity: g })}
-                      className={`flex-1 py-2 rounded-xl text-xs font-semibold capitalize transition-all border ${theme.glowIntensity === g ? 'bg-[var(--accent-color)]/20 border-[var(--accent-color)] text-white' : 'border-white/10 text-white/50 hover:border-white/20'}`}
-                    >
-                      {g}
-                    </button>
-                  ))}
+                <div className="space-y-4">
+                  <span className="text-[10px] font-black text-white/50 uppercase tracking-widest px-1">Atmospheric Glow</span>
+                  <div className="flex gap-2">
+                    {GLOW_OPTIONS.map((g) => (
+                      <button
+                        key={g}
+                        onClick={() => updateTheme({ glowIntensity: g })}
+                        className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${theme.glowIntensity === g ? 'bg-white/10 border-white/20 text-white shadow-xl' : 'border-white/[0.02] text-white/30 hover:border-white/10 hover:text-white/60'}`}
+                      >
+                        {g}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </section>
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-4 border-t border-white/10 space-y-2">
+            <div className="relative px-6 py-8 border-t border-white/5 space-y-4">
               <button
                 onClick={handleSave}
                 disabled={isSaving || !isDirty}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--accent-color)] hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold transition-all shadow-lg"
-                style={{ boxShadow: isDirty ? `0 4px 20px ${theme.accentColor}55` : undefined }}
+                className="w-full group relative flex items-center justify-center gap-3 py-4 rounded-2xl transition-all duration-500 disabled:opacity-40 overflow-hidden shadow-2xl"
+                style={{ 
+                   background: isDirty ? 'var(--accent-color, #3b82f6)' : 'rgba(255,255,255,0.03)',
+                   boxShadow: isDirty ? `0 10px 40px ${theme.accentColor}44` : 'none'
+                }}
               >
-                {isSaving
-                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</>
-                  : <><Save className="w-4 h-4" /> Save Preferences</>
-                }
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                <div className="relative z-10 flex items-center gap-2">
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white">
+                    {isSaving ? 'Syncing...' : 'Save Workspace'}
+                  </span>
+                </div>
               </button>
+              
               <button
                 onClick={resetToDefaults}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white/40 hover:text-white/70 text-xs transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2 text-white/20 hover:text-white/60 transition-colors"
               >
-                <RotateCcw className="w-3 h-3" /> Reset to defaults
+                <div className="h-px flex-1 bg-white/[0.03]" />
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap flex items-center gap-1.5">
+                  <RotateCcw className="w-2.5 h-2.5" /> Source Reset
+                </span>
+                <div className="h-px flex-1 bg-white/[0.03]" />
               </button>
             </div>
           </motion.aside>

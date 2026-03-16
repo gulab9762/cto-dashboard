@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type FC, type KeyboardEvent } from 'react';
+import { motion } from 'framer-motion';
 import {
   BarChart3,
   Clock,
@@ -13,6 +13,7 @@ import {
   Save,
   Loader2,
 } from 'lucide-react';
+import { useState, useEffect, useCallback, type FC, type KeyboardEvent } from 'react';
 
 // dnd-kit
 import {
@@ -44,6 +45,7 @@ import UnifiedTimeline, { type TimelineEvent } from './UnifiedTimeline';
 import ExecutiveStabilityView from './ExecutiveStabilityView';
 import DraggableWidget from './DraggableWidget';
 import CustomizationPanel from './CustomizationPanel';
+import Sidebar from './Sidebar';
 import { DashboardCustomizationProvider, useDashboardCustomization } from '../context/DashboardCustomizationContext';
 import { MetricsService } from '../services/metrics.service';
 import type { WidgetConfig } from '../types/dashboard';
@@ -218,8 +220,8 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
       case 1: return { slotSize: 'metric', gridClass: 'md:col-start-2 md:row-start-1' };
       case 2: return { slotSize: 'metric', gridClass: 'md:col-start-1 md:row-start-2' };
       case 3: return { slotSize: 'metric', gridClass: 'md:col-start-2 md:row-start-2' };
-      case 4: return { slotSize: 'wide',   gridClass: 'md:col-start-1 md:col-span-2 md:row-start-3 max-md:mt-6' };
-      case 5: return { slotSize: 'tall',   gridClass: 'md:col-start-3 md:row-start-1 md:row-span-3 h-full max-md:mt-6' };
+      case 4: return { slotSize: 'wide', gridClass: 'md:col-start-1 md:col-span-2 md:row-start-3 max-md:mt-6' };
+      case 5: return { slotSize: 'tall', gridClass: 'md:col-start-3 md:row-start-1 md:row-span-3 h-full max-md:mt-6' };
       default: return { slotSize: 'metric', gridClass: '' };
     }
   };
@@ -227,152 +229,211 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
   const sortableIds = widgets.map(w => w.id);
   const activeWidget = activeId ? widgets.find(w => w.id === activeId) : null;
 
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+
   return (
-    <div className="min-h-screen text-white p-6 md:p-12" style={{ background: 'var(--dashboard-bg, linear-gradient(135deg, #0d1117 0%, #161b22 100%))' }}>
-      <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2" style={{ color: 'var(--accent-color, #60a5fa)' }}>
-            <LayoutDashboard className="h-5 w-5" />
-            <span className="text-xs font-bold uppercase tracking-widest opacity-70">Engineering Intel</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-white/80 to-white/40 bg-clip-text text-transparent">
-            CTO Dashboard <span style={{ color: 'var(--accent-color, #60a5fa)' }}>.</span>
-          </h1>
-          <p className="text-white/50 font-medium">Real-time engineering metrics &amp; stability overlay</p>
+    <div className="min-h-screen text-white relative overflow-hidden flex" style={{ background: 'var(--dashboard-bg, #09090b)' }}>
+      <Sidebar
+        isExpanded={sidebarExpanded}
+        onToggle={() => setSidebarExpanded(!sidebarExpanded)}
+        incidentCount={metrics?.incidents?.length || 0}
+      />
+
+      <main className="flex-1 relative overflow-y-auto h-screen overflow-x-hidden custom-scrollbar p-6 md:p-12">
+        {/* Background radial effects */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-40">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-accent-blue/10 blur-[120px]" />
+          <div className="absolute bottom-[20%] right-[-5%] w-[30%] h-[40%] rounded-full bg-accent-purple/10 blur-[120px]" />
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            id="edit-layout-btn"
-            onClick={toggleEditMode}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all ${isEditMode
-                ? 'bg-[var(--accent-color)]/20 border-[var(--accent-color)] text-white'
-                : 'border-white/10 text-white/50 hover:border-white/30 hover:text-white/80'
-              }`}
-          >
-            {isEditMode ? <><X className="w-4 h-4" /> Exit Edit</> : <><Pencil className="w-4 h-4" /> Edit Layout</>}
-            {isDirty && !isEditMode && <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)] ml-1" />}
-          </button>
+        {/* Noise Texture Overlay */}
+        <div className="absolute inset-0 bg-noise opacity-[0.02] pointer-events-none" />
 
-          <button
-            id="theme-panel-btn"
-            onClick={() => setPanelOpen(v => !v)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all ${panelOpen
-                ? 'bg-[var(--accent-color)]/20 border-[var(--accent-color)] text-white'
-                : 'border-white/10 text-white/50 hover:border-white/30 hover:text-white/80'
-              }`}
-          >
-            <Palette className="w-4 h-4" />
-            {panelOpen ? 'Close' : 'Theme'}
-          </button>
-
-          <div className="flex items-center gap-3 backdrop-blur-md bg-white/5 border border-white/10 p-1.5 rounded-2xl shadow-xl">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-              <input
-                type="text"
-                value={orgId}
-                onChange={(e) => onOrgChange(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="bg-transparent border-none focus:ring-0 text-sm pl-9 pr-4 py-2 w-52 placeholder:text-white/20"
-                placeholder="Search Organization..."
-              />
-            </div>
-            <button
-              onClick={fetchMetrics}
-              disabled={loading}
-              className="text-white text-sm font-bold px-5 py-2 rounded-xl transition-all shadow-lg disabled:opacity-50"
-              style={{ background: 'var(--accent-color, #60a5fa)', boxShadow: '0 4px 14px var(--accent-color, #60a5fa)40' }}
+        <header className="relative z-10 mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div className="space-y-3">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-2.5 pb-1"
             >
-              {loading ? 'Analyzing…' : 'Refresh'}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Edit mode banner */}
-      {isEditMode && (
-        <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border border-[var(--accent-color)]/40 bg-[var(--accent-color)]/10 text-sm text-white/70">
-          <Pencil className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--accent-color)' }} />
-          <span className="flex-1">Drag widgets to preview placement — drop to confirm. Use <strong className="text-white">Theme</strong> to change colors.</span>
-          <button
-            onClick={resetToDefaults}
-            className="px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-white/70 border border-white/10 hover:border-white/20 transition-colors"
-          >
-            Reset
-          </button>
-          <button
-            id="save-preferences-btn"
-            onClick={savePreferences}
-            disabled={isSaving || !isDirty}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold disabled:opacity-40 transition-all"
-            style={{ background: 'var(--accent-color)', boxShadow: isDirty ? '0 2px 12px var(--accent-color, #60a5fa)55' : undefined }}
-          >
-            {isSaving
-              ? <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>
-              : <><Save className="w-3 h-3" /> {isDirty ? 'Save' : 'Saved ✓'}</>
-            }
-          </button>
-        </div>
-      )}
-
-      {loading && !metrics ? (
-        <div className="flex flex-col items-center justify-center h-[50vh] gap-6">
-          <div className="relative h-16 w-16">
-            <div className="absolute inset-0 rounded-full border-4 border-white/5" />
-            <div className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: 'var(--accent-color, #60a5fa) transparent transparent transparent' }} />
-            <Zap className="absolute inset-0 m-auto h-6 w-6 animate-pulse" style={{ color: 'var(--accent-color, #60a5fa)' }} />
-          </div>
-          <p className="text-white/40 animate-pulse font-medium tracking-wide">Crunching engineering data…</p>
-        </div>
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCorners}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
-        >
-          <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
-            {/* ── Flattened CSS Grid ────────────────────────────── */}
-            {/* By keeping DOM flat, dnd-kit never drops pointers during cross-zone drags */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 transition-all duration-300">
-              {displayOrder.map((w, index) => {
-                const { slotSize, gridClass } = getGridProps(index);
-                return (
-                  <DraggableWidget
-                    key={w.id}
-                    id={w.id}
-                    isEditMode={isEditMode}
-                    isGhost={activeId === w.id}
-                    isDropTarget={overId === w.id && activeId !== w.id}
-                    isHidden={w.hidden}
-                    onToggleHide={(e) => {
-                      e.stopPropagation();
-                      toggleWidgetVisibility(w.id);
-                    }}
-                    className={gridClass}
-                  >
-                    {renderWidgetContent(w.id, displayOrder, slotSize)}
-                  </DraggableWidget>
-                );
-              })}
-            </div>
-          </SortableContext>
-
-          {/* ── Drag overlay: floating ghost under cursor ───────────────── */}
-          <DragOverlay dropAnimation={{ duration: 200, easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)' }}>
-            {activeWidget ? (
-              <div className="opacity-90 rotate-1 scale-[1.03] shadow-2xl rounded-2xl pointer-events-none"
-                style={{ boxShadow: `0 20px 60px var(--accent-color, #60a5fa)40` }}>
-                {renderWidgetContent(activeWidget.id, widgets)}
+              <div className="p-1.5 rounded-lg bg-accent-blue/20 text-accent-blue ring-1 ring-accent-blue/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                <Zap className="h-4 w-4" />
               </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      )}
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-blue/80">Engineering Intelligence</span>
+            </motion.div>
 
-      <CustomizationPanel isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-br from-white via-white to-white/40 bg-clip-text text-transparent"
+            >
+              CTO OS <span className="text-accent-blue font-light">1.0</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-text-muted font-bold tracking-wide text-lg opacity-60"
+            >
+              Command center for engineering stability & architectural velocity.
+            </motion.p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-4"
+          >
+            <div className="flex items-center gap-2 p-1 bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl">
+              <button
+                id="edit-layout-btn"
+                onClick={toggleEditMode}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${isEditMode
+                  ? 'bg-accent-blue/20 border border-accent-blue/40 text-white shadow-[0_0_20px_rgba(59,130,246,0.2)]'
+                  : 'text-white/40 hover:text-white hover:bg-white/5'
+                  }`}
+              >
+                {isEditMode ? <><X className="w-3.5 h-3.5" /> Exit</> : <><Pencil className="w-3.5 h-3.5" /> Layout</>}
+                {isDirty && !isEditMode && <span className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse" />}
+              </button>
+
+              <button
+                id="theme-panel-btn"
+                onClick={() => setPanelOpen(v => !v)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${panelOpen
+                  ? 'bg-accent-purple/20 border border-accent-purple/40 text-white shadow-[0_0_20px_rgba(139,92,246,0.2)]'
+                  : 'text-white/40 hover:text-white hover:bg-white/5'
+                  }`}
+              >
+                <Palette className="w-3.5 h-3.5" />
+                Theme
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3 bg-white/[0.03] backdrop-blur-xl border border-white/5 p-1.5 rounded-2xl shadow-2xl">
+              <div className="relative group">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/30 group-focus-within:text-accent-blue transition-colors" />
+                <input
+                  type="text"
+                  value={orgId}
+                  onChange={(e) => onOrgChange(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="bg-transparent border-none focus:ring-0 text-xs font-bold pl-10 pr-4 py-2.5 w-48 placeholder:text-white/20 text-white/80"
+                  placeholder="ORG_ID"
+                />
+              </div>
+              <button
+                onClick={fetchMetrics}
+                disabled={loading}
+                className="group relative flex items-center justify-center text-white text-[11px] font-black uppercase tracking-[0.15em] px-6 py-2.5 rounded-xl transition-all duration-500 disabled:opacity-50 overflow-hidden"
+                style={{ background: 'var(--accent-color, #3b82f6)' }}
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                <span className="relative z-10">{loading ? 'Crunching…' : 'Sync'}</span>
+              </button>
+            </div>
+          </motion.div>
+        </header>
+
+        {/* Edit mode banner */}
+        {isEditMode && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 flex items-center gap-4 px-5 py-4 rounded-2xl border border-accent-blue/30 bg-accent-blue/[0.07] backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.3)]"
+          >
+            <div className="p-2 rounded-lg bg-accent-blue/20 text-accent-blue">
+              <LayoutDashboard className="w-4 h-4" />
+            </div>
+            <p className="flex-1 text-xs font-bold tracking-wide text-white/80 uppercase">
+              Interface Customization Active <span className="mx-2 opacity-30">|</span> <span className="opacity-60 font-medium lowercase">drag and drop modules to optimize workspace layout.</span>
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={resetToDefaults}
+                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/5 transition-all"
+              >
+                Reset
+              </button>
+              <button
+                id="save-preferences-btn"
+                onClick={savePreferences}
+                disabled={isSaving || !isDirty}
+                className="flex items-center gap-2 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl disabled:opacity-40 transition-all active:scale-95"
+                style={{
+                  background: 'var(--accent-color)',
+                  boxShadow: isDirty ? '0 8px 25px rgba(59,130,246,0.3)' : 'none'
+                }}
+              >
+                {isSaving
+                  ? <><Loader2 className="w-3 h-3 animate-spin" /> ...</>
+                  : <><Save className="w-3 h-3" /> Commit</>
+                }
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+
+        {loading && !metrics ? (
+          <div className="flex flex-col items-center justify-center h-[50vh] gap-6">
+            <div className="relative h-16 w-16">
+              <div className="absolute inset-0 rounded-full border-4 border-white/5" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: 'var(--accent-color, #60a5fa) transparent transparent transparent' }} />
+              <Zap className="absolute inset-0 m-auto h-6 w-6 animate-pulse" style={{ color: 'var(--accent-color, #60a5fa)' }} />
+            </div>
+            <p className="text-white/40 animate-pulse font-medium tracking-wide">Crunching engineering data…</p>
+          </div>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
+          >
+            <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
+              {/* ── Flattened CSS Grid ────────────────────────────── */}
+              {/* By keeping DOM flat, dnd-kit never drops pointers during cross-zone drags */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 transition-all duration-300">
+                {displayOrder.map((w, index) => {
+                  const { slotSize, gridClass } = getGridProps(index);
+                  return (
+                    <DraggableWidget
+                      key={w.id}
+                      id={w.id}
+                      isEditMode={isEditMode}
+                      isGhost={activeId === w.id}
+                      isDropTarget={overId === w.id && activeId !== w.id}
+                      isHidden={w.hidden}
+                      onToggleHide={(e) => {
+                        e.stopPropagation();
+                        toggleWidgetVisibility(w.id);
+                      }}
+                      className={gridClass}
+                    >
+                      {renderWidgetContent(w.id, displayOrder, slotSize)}
+                    </DraggableWidget>
+                  );
+                })}
+              </div>
+            </SortableContext>
+
+            {/* ── Drag overlay: floating ghost under cursor ───────────────── */}
+            <DragOverlay dropAnimation={{ duration: 200, easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)' }}>
+              {activeWidget ? (
+                <div className="opacity-90 rotate-1 scale-[1.03] shadow-2xl rounded-2xl pointer-events-none"
+                  style={{ boxShadow: `0 20px 60px var(--accent-color, #60a5fa)40` }}>
+                  {renderWidgetContent(activeWidget.id, widgets)}
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        )}
+
+        <CustomizationPanel isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
+      </main>
     </div>
   );
 };
