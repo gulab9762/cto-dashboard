@@ -13,8 +13,8 @@ if [ "$SERVICES" == "all" ]; then
 else
     echo "📦 Rebuilding $SERVICES..."
     docker-compose build $SERVICES
-    echo "🔄 Restarting $SERVICES..."
-    docker-compose up -d $SERVICES
+    echo "🔄 Restarting $SERVICES (without restarting dependencies)..."
+    docker-compose up -d --no-deps $SERVICES
 fi
 
 echo "✅ Pipeline completed!"

@@ -1,12 +1,13 @@
-import React from 'react';
+import type { FC } from 'react';
 import type { Deployment, Incident } from '../types/metrics';
 
 interface SystemsHealthProps {
     deployments: Deployment[];
     incidents: Incident[];
+    isLoading?: boolean;
 }
 
-const SystemsHealth: React.FC<SystemsHealthProps> = ({ deployments, incidents }) => {
+const SystemsHealth: FC<SystemsHealthProps> = ({ deployments, incidents, isLoading }) => {
     return (
         <div className="health-section">
             <div className="section-divider">
@@ -16,7 +17,9 @@ const SystemsHealth: React.FC<SystemsHealthProps> = ({ deployments, incidents })
                 <div className="health-card">
                     <h3>Recent Deployments</h3>
                     <div className="data-list">
-                        {deployments.length > 0 ? (
+                        {isLoading ? (
+                            <div className="list-item"><span>Loading...</span></div>
+                        ) : deployments.length > 0 ? (
                             deployments.map((d, i) => (
                                 <div key={i} className="list-item">
                                     <span>{d.date}</span>
@@ -33,7 +36,9 @@ const SystemsHealth: React.FC<SystemsHealthProps> = ({ deployments, incidents })
                 <div className="health-card">
                     <h3>Critical Incidents</h3>
                     <div className="data-list">
-                        {incidents.length > 0 ? (
+                        {isLoading ? (
+                            <div className="list-item"><span>Loading...</span></div>
+                        ) : incidents.length > 0 ? (
                             incidents.map((inc, i) => (
                                 <div key={i} className="list-item">
                                     <span>{inc.date}</span>

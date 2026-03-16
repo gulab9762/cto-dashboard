@@ -1,13 +1,13 @@
-import React from 'react';
+import type { FC, ReactNode } from 'react';
 
 interface MetricCardProps {
     title: string;
     value: string | number;
     unit?: string;
-    icon: React.ReactNode;
+    icon: ReactNode;
 }
 
-const MetricCard: React.FC<MetricCardProps> = ({ title, value, unit, icon }) => {
+const MetricCard: FC<MetricCardProps> = ({ title, value, unit, icon }) => {
     return (
         <div className="metric-card">
             <div className="metric-title">
