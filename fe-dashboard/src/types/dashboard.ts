@@ -14,6 +14,7 @@ export interface WidgetTheme {
 export interface WidgetConfig {
   id: string;
   type: 'metric' | 'timeline' | 'stability' | 'custom';
+  hidden?: boolean;
   title?: string;
   layout?: WidgetLayout;
   theme?: WidgetTheme;

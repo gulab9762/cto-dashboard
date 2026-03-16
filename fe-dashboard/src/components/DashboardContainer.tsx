@@ -1,21 +1,55 @@
-import { useState, useEffect, type FC, type KeyboardEvent } from 'react';
-import { 
-  BarChart3, 
-  Clock, 
-  Code2, 
-  MessageSquare, 
-  Zap, 
+import { useState, useEffect, useCallback, type FC, type KeyboardEvent } from 'react';
+import {
+  BarChart3,
+  Clock,
+  Code2,
+  MessageSquare,
+  Zap,
   Search,
-  LayoutDashboard
+  LayoutDashboard,
+  Pencil,
+  X,
+  Palette,
+  Save,
+  Loader2,
 } from 'lucide-react';
+
+// dnd-kit
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+
+// Helper to swap two exact positions instead of shifting (arrayMove)
+function arraySwap<T>(array: T[], indexA: number, indexB: number): T[] {
+  const newArray = [...array];
+  const temp = newArray[indexA];
+  newArray[indexA] = newArray[indexB];
+  newArray[indexB] = temp;
+  return newArray;
+}
 
 import PremiumMetricCard from './PremiumMetricCard';
 import UnifiedTimeline, { type TimelineEvent } from './UnifiedTimeline';
 import ExecutiveStabilityView from './ExecutiveStabilityView';
+import DraggableWidget from './DraggableWidget';
+import CustomizationPanel from './CustomizationPanel';
+import { DashboardCustomizationProvider, useDashboardCustomization } from '../context/DashboardCustomizationContext';
 import { MetricsService } from '../services/metrics.service';
 import type { WidgetConfig } from '../types/dashboard';
+import type { WidgetSlotSize } from '../types/customization';
 
-// Dummy data for demonstration
+// ─── Mock data (fallback) ──────────────────────────────────────────────────────
 const MOCK_TIMELINE: TimelineEvent[] = [
   { id: '1', type: 'deployment', title: 'Production Deploy - API Gateway', timestamp: '10m ago', status: 'success', description: 'v2.4.1 stable. No degradation in latency reported.' },
   { id: '2', type: 'pr', title: 'Bugfix: Kafka lag in event-processor', timestamp: '45m ago', status: 'info', description: 'Merged by @gulab9762. Optimized batch processing sizes.' },
@@ -24,163 +58,333 @@ const MOCK_TIMELINE: TimelineEvent[] = [
   { id: '5', type: 'system', title: 'Scheduled Maintenance Complete', timestamp: '1d ago', status: 'success', description: 'Cluster nodes upgraded to latest security patch.' },
 ];
 
-// MOCK_STABILITY removed as it is now dynamic
-const WIDGET_CONFIGS: WidgetConfig[] = [
-  { id: 'm1', type: 'metric', title: 'PRs Merged', theme: { glowColor: '#60a5fa', glowIntensity: 'medium' } },
-  { id: 'm2', type: 'metric', title: 'Avg Cycle Time', theme: { glowColor: '#8b5cf6', glowIntensity: 'medium' } },
-  { id: 'm3', type: 'metric', title: 'Commits', theme: { glowColor: '#f472b6', glowIntensity: 'low' } },
-  { id: 'm4', type: 'metric', title: 'Reviews', theme: { glowColor: '#fbbf24', glowIntensity: 'low' } },
-  { id: 's1', type: 'stability', title: 'Executive Health', layout: { spanX: 2 } },
-  { id: 't1', type: 'timeline', title: 'Activity Stream', layout: { spanX: 1 } },
-];
+// ─── Inner dashboard ───────────────────────────────────────────────────────────
+const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = ({ orgId, onOrgChange }) => {
+  const { widgets, reorderWidgets, toggleWidgetVisibility, isEditMode, toggleEditMode, isDirty, savePreferences, isSaving, resetToDefaults } = useDashboardCustomization();
+  const [loading, setLoading] = useState(false);
+  const [metrics, setMetrics] = useState<any>(null);
+  const [refreshPulse, setRefreshPulse] = useState(0);
+  const [panelOpen, setPanelOpen] = useState(false);
 
-const DashboardContainer: FC = () => {
-    const [orgId, setOrgId] = useState('acme-corp');
-    const [loading, setLoading] = useState(false);
-    const [metrics, setMetrics] = useState<any>(null);
-    const [refreshPulse, setRefreshPulse] = useState(0);
+  // ── Drag preview state ──────────────────────────────────────────────────────
+  // activeId   = which widget is being dragged (rendered as ghost via DragOverlay)
+  // overId     = which slot is the current drop target (highlighted)
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
 
-    const fetchMetrics = async () => {
-        if (!orgId.trim()) return;
-        setLoading(true);
-        try {
-            const data = await MetricsService.getOrganizationMetrics(orgId);
-            setMetrics(data);
-        } catch (err) {
-            console.error('Failed to fetch metrics:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchMetrics = useCallback(async () => {
+    if (!orgId.trim()) return;
+    setLoading(true);
+    try {
+      const data = await MetricsService.getOrganizationMetrics(orgId);
+      setMetrics(data);
+    } catch (err) {
+      console.error('Failed to fetch metrics:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [orgId]);
 
-    // Auto-refresh heartbeat every 30 seconds
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setRefreshPulse(p => p + 1);
-        }, 30000);
-        return () => clearInterval(interval);
-    }, []);
+  useEffect(() => {
+    const interval = setInterval(() => setRefreshPulse(p => p + 1), 30000);
+    return () => clearInterval(interval);
+  }, []);
 
-    useEffect(() => {
-        fetchMetrics();
-    }, [orgId, refreshPulse]);
+  useEffect(() => { fetchMetrics(); }, [orgId, refreshPulse, fetchMetrics]);
 
-    const handleKeyPress = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') fetchMetrics();
-    };
+  const handleKeyPress = (e: KeyboardEvent) => { if (e.key === 'Enter') fetchMetrics(); };
 
-    // Map backend events to Timeline structure
-    const mappedTimeline: TimelineEvent[] = (metrics?.recentEvents || []).map((e: any) => ({
-        id: e.id,
-        type: e.type.toLowerCase().includes('pr') ? 'pr' : 
-              e.type.toLowerCase().includes('deploy') ? 'deployment' : 
-              e.type.toLowerCase().includes('incident') ? 'incident' : 'system',
-        title: `${e.type.split('_').map((s: string) => s.charAt(0) + s.slice(1).toLowerCase()).join(' ')}: ${e.repo}`,
-        timestamp: new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        status: e.type.toLowerCase().includes('error') ? 'error' : 
-                e.type.toLowerCase().includes('warn') ? 'warning' : 'success',
-        description: `Triggered by ${e.actor} via ${e.source}`,
-        url: e.url
-    }));
+  const mappedTimeline: TimelineEvent[] = (metrics?.recentEvents || []).map((e: any) => ({
+    id: e.id,
+    type: e.type.toLowerCase().includes('pr') ? 'pr'
+      : e.type.toLowerCase().includes('deploy') ? 'deployment'
+        : e.type.toLowerCase().includes('incident') ? 'incident'
+          : 'system',
+    title: `${e.type.split('_').map((s: string) => s.charAt(0) + s.slice(1).toLowerCase()).join(' ')}: ${e.repo}`,
+    timestamp: new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    status: e.type.toLowerCase().includes('error') ? 'error'
+      : e.type.toLowerCase().includes('warn') ? 'warning'
+        : 'success',
+    description: `Triggered by ${e.actor} via ${e.source}`,
+    url: e.url,
+  }));
 
-    const stabilityMetrics = [
-        { label: 'Recent Deploys', value: `${metrics?.deployments?.length || 0}`, status: 'optimal' as const },
-        { label: 'Success Rate', value: metrics?.deployments?.[0]?.successRate ? `${(metrics.deployments[0].successRate * 100).toFixed(0)}%` : '100%', status: 'optimal' as const },
-        { label: 'Active Incidents', value: `${metrics?.incidents?.length || 0}`, status: (metrics?.incidents?.length || 0) > 0 ? 'critical' as const : 'optimal' as const },
-    ];
+  const stabilityMetrics = [
+    { label: 'Recent Deploys', value: `${metrics?.deployments?.length || 0}`, status: 'optimal' as const },
+    { label: 'Success Rate', value: metrics?.deployments?.[0]?.successRate ? `${(metrics.deployments[0].successRate * 100).toFixed(0)}%` : '100%', status: 'optimal' as const },
+    { label: 'Active Incidents', value: `${metrics?.incidents?.length || 0}`, status: (metrics?.incidents?.length || 0) > 0 ? 'critical' as const : 'optimal' as const },
+  ];
 
-    return (
-        <div className="min-h-screen bg-dashboard-bg text-white p-6 md:p-12">
-            <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-accent-blue">
-                      <LayoutDashboard className="h-5 w-5" />
-                      <span className="text-xs font-bold uppercase tracking-widest opacity-70">Engineering Intel</span>
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-white/80 to-white/40 bg-clip-text text-transparent">
-                      CTO Dashboard <span className="text-accent-blue">.</span>
-                    </h1>
-                    <p className="text-text-muted font-medium">Real-time engineering metrics & stability overlay</p>
-                </div>
-                
-                <div className="flex items-center gap-3 backdrop-blur-md bg-white/5 border border-white/10 p-1.5 rounded-2xl shadow-xl">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
-                    <input 
-                        type="text" 
-                        value={orgId}
-                        onChange={(e) => setOrgId(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        className="bg-transparent border-none focus:ring-0 text-sm pl-9 pr-4 py-2 w-64 placeholder:text-text-muted/50"
-                        placeholder="Search Organization..." 
-                    />
-                  </div>
-                  <button 
-                    onClick={fetchMetrics} 
-                    disabled={loading}
-                    className="bg-accent-blue hover:bg-accent-blue/80 text-white text-sm font-bold px-5 py-2 rounded-xl transition-all shadow-lg shadow-accent-blue/20 disabled:opacity-50"
-                  >
-                    {loading ? 'Analyzing...' : 'Refresh'}
-                  </button>
-                </div>
-            </header>
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
+  );
 
-            {loading && !metrics ? (
-                <div className="flex flex-col items-center justify-center h-[50vh] gap-6">
-                    <div className="relative h-16 w-16">
-                      <div className="absolute inset-0 rounded-full border-4 border-white/5" />
-                      <div className="absolute inset-0 rounded-full border-4 border-accent-blue border-t-transparent animate-spin" />
-                      <Zap className="absolute inset-0 m-auto h-6 w-6 text-accent-blue animate-pulse" />
-                    </div>
-                    <p className="text-text-muted animate-pulse font-medium tracking-wide">Crunching engineering data...</p>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <PremiumMetricCard 
-                            config={WIDGET_CONFIGS[0]}
-                            value={metrics?.prsMerged ?? 0}
-                            icon={<BarChart3 className="h-5 w-5" />}
-                            trend={{ value: 12, direction: 'up', label: 'vs last month' }}
-                        />
-                        <PremiumMetricCard 
-                            config={WIDGET_CONFIGS[1]}
-                            value={metrics?.averageCycleTime?.toFixed(1) || 0}
-                            unit="hrs"
-                            icon={<Clock className="h-5 w-5" />}
-                            trend={{ value: 8.5, direction: 'down', label: 'vs last month' }}
-                        />
-                        <PremiumMetricCard 
-                            config={WIDGET_CONFIGS[2]}
-                            value={metrics?.commitCount || 0}
-                            icon={<Code2 className="h-5 w-5" />}
-                            trend={{ value: 4, direction: 'up', label: 'vs last week' }}
-                        />
-                        <PremiumMetricCard 
-                            config={WIDGET_CONFIGS[3]}
-                            value={metrics?.reviewCount || 0}
-                            icon={<MessageSquare className="h-5 w-5" />}
-                            trend={{ value: 2, direction: 'neutral', label: 'no change' }}
-                        />
-                        
-                        <div className="sm:col-span-2">
-                          <ExecutiveStabilityView 
-                              config={WIDGET_CONFIGS[4]}
-                              metrics={stabilityMetrics}
-                          />
-                        </div>
-                    </div>
+  // ── Drag handlers ───────────────────────────────────────────────────────────
+  // We perform a true "Map" style swap. The 6 slots are fixed DOM positions.
+  // Dragging merely floats a visual copy. Dropping exactly swaps the data
+  // at the source index with the target index. No mid-air shifting.
 
-                    <div className="md:col-span-1">
-                        <UnifiedTimeline 
-                            config={WIDGET_CONFIGS[5]}
-                            events={mappedTimeline.length > 0 ? mappedTimeline : MOCK_TIMELINE}
-                        />
-                    </div>
-                </div>
-            )}
+  const handleDragStart = ({ active }: DragStartEvent) => {
+    setActiveId(String(active.id));
+  };
+
+  // handleDragOver removed as per instruction
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (over && active.id !== over.id) {
+      const oldIdx = widgets.findIndex(w => w.id === active.id);
+      const newIdx = widgets.findIndex(w => w.id === over.id);
+      reorderWidgets(arraySwap(widgets, oldIdx, newIdx));
+    }
+    setActiveId(null);
+    setOverId(null);
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setOverId(null);
+  };
+
+  // ── Render widget content by id + slot size ─────────────────────────────────
+  const renderWidgetContent = useCallback((id: string, widgetList: WidgetConfig[], slotSize: WidgetSlotSize = 'metric') => {
+    switch (id) {
+      case 'm1': return (
+        <PremiumMetricCard
+          config={widgetList.find(w => w.id === 'm1')!}
+          value={metrics?.prsMerged ?? 0}
+          icon={<BarChart3 className="h-5 w-5" />}
+          trend={{ value: 12, direction: 'up', label: 'vs last month' }}
+          slotSize={slotSize}
+        />
+      );
+      case 'm2': return (
+        <PremiumMetricCard
+          config={widgetList.find(w => w.id === 'm2')!}
+          value={metrics?.averageCycleTime?.toFixed(1) || 0}
+          unit="hrs"
+          icon={<Clock className="h-5 w-5" />}
+          trend={{ value: 8.5, direction: 'down', label: 'vs last month' }}
+          slotSize={slotSize}
+        />
+      );
+      case 'm3': return (
+        <PremiumMetricCard
+          config={widgetList.find(w => w.id === 'm3')!}
+          value={metrics?.commitCount || 0}
+          icon={<Code2 className="h-5 w-5" />}
+          trend={{ value: 4, direction: 'up', label: 'vs last week' }}
+          slotSize={slotSize}
+        />
+      );
+      case 'm4': return (
+        <PremiumMetricCard
+          config={widgetList.find(w => w.id === 'm4')!}
+          value={metrics?.reviewCount || 0}
+          icon={<MessageSquare className="h-5 w-5" />}
+          trend={{ value: 2, direction: 'neutral', label: 'no change' }}
+          slotSize={slotSize}
+        />
+      );
+      case 's1': return (
+        <ExecutiveStabilityView
+          config={widgetList.find(w => w.id === 's1')!}
+          metrics={stabilityMetrics}
+          slotSize={slotSize}
+        />
+      );
+      case 't1': return (
+        <UnifiedTimeline
+          config={widgetList.find(w => w.id === 't1')!}
+          events={mappedTimeline.length > 0 ? mappedTimeline : MOCK_TIMELINE}
+          slotSize={slotSize}
+        />
+      );
+      default: return null;
+    }
+  }, [metrics, stabilityMetrics, mappedTimeline]);
+
+  // ── Position-based slot assignment ─────────────────────────────────────────
+  // In Edit Mode, we show all widgets so they can be toggled/moved in the strict Map grid.
+  // In View Mode, we filter out hidden widgets, allowing remaining widgets to cascade 
+  // into the empty slots and auto-adapt their size (smart scaling).
+  const displayOrder = isEditMode ? widgets : widgets.filter(w => !w.hidden);
+
+  // ── Grid Layout Parsing ─────────────────────────────────────────────────────
+  // Helper to get CSS classes & slot sizes for each index in the 6-widget grid
+  const getGridProps = (index: number): { slotSize: WidgetSlotSize; gridClass: string } => {
+    switch (index) {
+      case 0: return { slotSize: 'metric', gridClass: 'md:col-start-1 md:row-start-1' };
+      case 1: return { slotSize: 'metric', gridClass: 'md:col-start-2 md:row-start-1' };
+      case 2: return { slotSize: 'metric', gridClass: 'md:col-start-1 md:row-start-2' };
+      case 3: return { slotSize: 'metric', gridClass: 'md:col-start-2 md:row-start-2' };
+      case 4: return { slotSize: 'wide',   gridClass: 'md:col-start-1 md:col-span-2 md:row-start-3 max-md:mt-6' };
+      case 5: return { slotSize: 'tall',   gridClass: 'md:col-start-3 md:row-start-1 md:row-span-3 h-full max-md:mt-6' };
+      default: return { slotSize: 'metric', gridClass: '' };
+    }
+  };
+
+  const sortableIds = widgets.map(w => w.id);
+  const activeWidget = activeId ? widgets.find(w => w.id === activeId) : null;
+
+  return (
+    <div className="min-h-screen text-white p-6 md:p-12" style={{ background: 'var(--dashboard-bg, linear-gradient(135deg, #0d1117 0%, #161b22 100%))' }}>
+      <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2" style={{ color: 'var(--accent-color, #60a5fa)' }}>
+            <LayoutDashboard className="h-5 w-5" />
+            <span className="text-xs font-bold uppercase tracking-widest opacity-70">Engineering Intel</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-white/80 to-white/40 bg-clip-text text-transparent">
+            CTO Dashboard <span style={{ color: 'var(--accent-color, #60a5fa)' }}>.</span>
+          </h1>
+          <p className="text-white/50 font-medium">Real-time engineering metrics &amp; stability overlay</p>
         </div>
-    );
+
+        <div className="flex items-center gap-3">
+          <button
+            id="edit-layout-btn"
+            onClick={toggleEditMode}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all ${isEditMode
+                ? 'bg-[var(--accent-color)]/20 border-[var(--accent-color)] text-white'
+                : 'border-white/10 text-white/50 hover:border-white/30 hover:text-white/80'
+              }`}
+          >
+            {isEditMode ? <><X className="w-4 h-4" /> Exit Edit</> : <><Pencil className="w-4 h-4" /> Edit Layout</>}
+            {isDirty && !isEditMode && <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)] ml-1" />}
+          </button>
+
+          <button
+            id="theme-panel-btn"
+            onClick={() => setPanelOpen(v => !v)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all ${panelOpen
+                ? 'bg-[var(--accent-color)]/20 border-[var(--accent-color)] text-white'
+                : 'border-white/10 text-white/50 hover:border-white/30 hover:text-white/80'
+              }`}
+          >
+            <Palette className="w-4 h-4" />
+            {panelOpen ? 'Close' : 'Theme'}
+          </button>
+
+          <div className="flex items-center gap-3 backdrop-blur-md bg-white/5 border border-white/10 p-1.5 rounded-2xl shadow-xl">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <input
+                type="text"
+                value={orgId}
+                onChange={(e) => onOrgChange(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="bg-transparent border-none focus:ring-0 text-sm pl-9 pr-4 py-2 w-52 placeholder:text-white/20"
+                placeholder="Search Organization..."
+              />
+            </div>
+            <button
+              onClick={fetchMetrics}
+              disabled={loading}
+              className="text-white text-sm font-bold px-5 py-2 rounded-xl transition-all shadow-lg disabled:opacity-50"
+              style={{ background: 'var(--accent-color, #60a5fa)', boxShadow: '0 4px 14px var(--accent-color, #60a5fa)40' }}
+            >
+              {loading ? 'Analyzing…' : 'Refresh'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Edit mode banner */}
+      {isEditMode && (
+        <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl border border-[var(--accent-color)]/40 bg-[var(--accent-color)]/10 text-sm text-white/70">
+          <Pencil className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--accent-color)' }} />
+          <span className="flex-1">Drag widgets to preview placement — drop to confirm. Use <strong className="text-white">Theme</strong> to change colors.</span>
+          <button
+            onClick={resetToDefaults}
+            className="px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-white/70 border border-white/10 hover:border-white/20 transition-colors"
+          >
+            Reset
+          </button>
+          <button
+            id="save-preferences-btn"
+            onClick={savePreferences}
+            disabled={isSaving || !isDirty}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold disabled:opacity-40 transition-all"
+            style={{ background: 'var(--accent-color)', boxShadow: isDirty ? '0 2px 12px var(--accent-color, #60a5fa)55' : undefined }}
+          >
+            {isSaving
+              ? <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>
+              : <><Save className="w-3 h-3" /> {isDirty ? 'Save' : 'Saved ✓'}</>
+            }
+          </button>
+        </div>
+      )}
+
+      {loading && !metrics ? (
+        <div className="flex flex-col items-center justify-center h-[50vh] gap-6">
+          <div className="relative h-16 w-16">
+            <div className="absolute inset-0 rounded-full border-4 border-white/5" />
+            <div className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: 'var(--accent-color, #60a5fa) transparent transparent transparent' }} />
+            <Zap className="absolute inset-0 m-auto h-6 w-6 animate-pulse" style={{ color: 'var(--accent-color, #60a5fa)' }} />
+          </div>
+          <p className="text-white/40 animate-pulse font-medium tracking-wide">Crunching engineering data…</p>
+        </div>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
+            {/* ── Flattened CSS Grid ────────────────────────────── */}
+            {/* By keeping DOM flat, dnd-kit never drops pointers during cross-zone drags */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 transition-all duration-300">
+              {displayOrder.map((w, index) => {
+                const { slotSize, gridClass } = getGridProps(index);
+                return (
+                  <DraggableWidget
+                    key={w.id}
+                    id={w.id}
+                    isEditMode={isEditMode}
+                    isGhost={activeId === w.id}
+                    isDropTarget={overId === w.id && activeId !== w.id}
+                    isHidden={w.hidden}
+                    onToggleHide={(e) => {
+                      e.stopPropagation();
+                      toggleWidgetVisibility(w.id);
+                    }}
+                    className={gridClass}
+                  >
+                    {renderWidgetContent(w.id, displayOrder, slotSize)}
+                  </DraggableWidget>
+                );
+              })}
+            </div>
+          </SortableContext>
+
+          {/* ── Drag overlay: floating ghost under cursor ───────────────── */}
+          <DragOverlay dropAnimation={{ duration: 200, easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)' }}>
+            {activeWidget ? (
+              <div className="opacity-90 rotate-1 scale-[1.03] shadow-2xl rounded-2xl pointer-events-none"
+                style={{ boxShadow: `0 20px 60px var(--accent-color, #60a5fa)40` }}>
+                {renderWidgetContent(activeWidget.id, widgets)}
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      )}
+
+      <CustomizationPanel isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
+    </div>
+  );
+};
+
+// ─── Exported container ────────────────────────────────────────────────────────
+const DashboardContainer: FC = () => {
+  const [orgId, setOrgId] = useState('acme-corp');
+  return (
+    <DashboardCustomizationProvider userId={orgId}>
+      <DashboardInner orgId={orgId} onOrgChange={setOrgId} />
+    </DashboardCustomizationProvider>
+  );
 };
 
 export default DashboardContainer;

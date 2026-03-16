@@ -4,6 +4,19 @@ type Query {
   incidents(orgId: ID!): [Incident]
   recentEvents(orgId: ID!, limit: Int): [Event]
   metricTrends(orgId: ID!, metricType: String!): [AnalyticData]
+  userPreferences(userId: ID!): UserPreferences
+}
+
+type Mutation {
+  saveUserPreferences(userId: ID!, layoutJson: String!, themeJson: String!): UserPreferences
+}
+
+type UserPreferences {
+  id: ID
+  userId: ID!
+  layoutJson: String!
+  themeJson: String!
+  updatedAt: String
 }
 
 enum Period {
