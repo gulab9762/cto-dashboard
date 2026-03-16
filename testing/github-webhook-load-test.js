@@ -8,9 +8,9 @@ const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
 
 export const options = {
     stages: [
-        { duration: '1m', target: 50 },  // Ramp-up to 50 VUs
-        { duration: '3m', target: 50 },  // Stay at 50 VUs
-        { duration: '1m', target: 0 },   // Ramp-down to 0
+        { duration: '10s', target: 300 }, // Ramp-up to 300 VUs over 10s to avoid thundering herd
+        { duration: '30s', target: 300 }, // Soak at 300 VUs
+        { duration: '10s', target: 0 },   // Ramp-down
     ],
     thresholds: {
         http_req_duration: ['p(95)<2000'],

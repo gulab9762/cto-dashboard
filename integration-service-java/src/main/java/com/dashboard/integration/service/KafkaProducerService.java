@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -18,6 +19,7 @@ public class KafkaProducerService {
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
+    @Async
     @SuppressWarnings("null")
     public void publish(String topic, EngineeringEvent message) {
         log.info("📤 Publishing event to topic: {}", topic);

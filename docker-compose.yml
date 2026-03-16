@@ -74,11 +74,17 @@ services:
     container_name: integration-service
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       NODE_ENV: development
       PORT: 3000
-      KAFKA_BROKERS: redpanda:29092
-      KAFKA_TOPIC: engineering-events
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      TOMCAT_THREADS_MAX: ${TOMCAT_THREADS_MAX}
+      TOMCAT_THREADS_MIN_SPARE: ${TOMCAT_THREADS_MIN_SPARE}
+      TOMCAT_MAX_CONNECTIONS: ${TOMCAT_MAX_CONNECTIONS}
+      TOMCAT_ACCEPT_COUNT: ${TOMCAT_ACCEPT_COUNT}
     depends_on:
       redpanda:
         condition: service_started

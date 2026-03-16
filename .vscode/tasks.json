@@ -64,6 +64,17 @@
                 "reveal": "always",
                 "panel": "new"
             }
+        },
+        {
+            "label": "Test GitHub Webhook Load",
+            "type": "shell",
+            "command": "k6 run ./testing/github-webhook-load-test.js",
+            "isBackground": false,
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
         }
     ]
 }
