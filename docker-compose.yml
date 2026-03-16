@@ -109,6 +109,10 @@ services:
       CLICKHOUSE_HOST: "clickhouse"
       CLICKHOUSE_PORT: "8123"
       CLICKHOUSE_DATABASE: "cto_dashboard"
+      KAFKA_CONCURRENCY: ${KAFKA_CONCURRENCY}
+      KAFKA_MAX_POLL_RECORDS: ${KAFKA_MAX_POLL_RECORDS}
+      KAFKA_FETCH_MIN_BYTES: ${KAFKA_FETCH_MIN_BYTES}
+      KAFKA_FETCH_MAX_WAIT_MS: ${KAFKA_FETCH_MAX_WAIT_MS}
     depends_on:
       redpanda:
         condition: service_started

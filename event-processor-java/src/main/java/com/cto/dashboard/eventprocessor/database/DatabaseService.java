@@ -26,22 +26,26 @@ public class DatabaseService {
     private EventMetricRepository eventMetricRepository;
 
     @Transactional
-    public void storeEvent(EngineeringEvent event) {
-        try {
-            // Store in PostgreSQL
-            // We use suppress warnings here because the IDE's static analysis 
-            // sees CrudRepository.save() as potentially nullable, but also 
-            // calls any subsequent null check "dead code."
-            @SuppressWarnings("null")
-            EngineeringEvent savedEvent = engineeringEventRepository.save(event);
-            logger.info("✅ Event stored in PostgreSQL: {}", savedEvent.getId());
+    public void storeEvents(List<EngineeringEvent> events) {
+        if (events == null || events.isEmpty()) return;
 
-            // Update metrics
-            updateEventMetrics(event);
+        try {
+            engineeringEventRepository.saveAll(events);
+            logger.info("✅ {} events stored in PostgreSQL", events.size());
+
+            // Update metrics in batch (simplified for now, could be further optimized)
+            for (EngineeringEvent event : events) {
+                updateEventMetrics(event);
+            }
         } catch (Exception e) {
-            logger.error("❌ Failed to store event: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to store event", e);
+            logger.error("❌ Failed to store batch: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to store batch", e);
         }
+    }
+
+    @Transactional
+    public void storeEvent(EngineeringEvent event) {
+        storeEvents(java.util.Collections.singletonList(event));
     }
 
     @Transactional
