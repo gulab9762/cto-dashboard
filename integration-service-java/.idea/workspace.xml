@@ -5,14 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dacb37a0-1b36-4a77-a031-a71b8bce8eca" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../api-gateway-java/src/main/java/com/ctodashboard/apigateway/config/CorsConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.ask.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.edit.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../api-gateway-java/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../api-gateway-java/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../api-gateway-java/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../api-gateway-java/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../api-gateway-java/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../api-gateway-java/target/classes/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docs/curls.md" beforeDir="false" afterPath="$PROJECT_DIR$/../docs/curls.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../event-processor-java/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/database/DatabaseService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../event-processor-java/target/classes/com/cto/dashboard/eventprocessor/database/DatabaseService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

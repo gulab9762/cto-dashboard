@@ -60,24 +60,24 @@ services:
       timeout: 5s
       retries: 5
 
-  # # Integration Service (Webhook handler)
-  # integration-service:
-  #   build:
-  #     context: ./services/integration-service
-  #     dockerfile: Dockerfile
-  #   container_name: integration-service
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 3000
-  #     KAFKA_BROKERS: redpanda:29092
-  #     KAFKA_TOPIC: engineering-events
-  #   depends_on:
-  #     redpanda:
-  #       condition: service_started
-  #   networks:
-  #     - cto-network
+  # Integration Service (Webhook handler)
+  integration-service:
+    build:
+      context: ./integration-service-java
+      dockerfile: Dockerfile
+    container_name: integration-service
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      KAFKA_BROKERS: redpanda:29092
+      KAFKA_TOPIC: engineering-events
+    depends_on:
+      redpanda:
+        condition: service_started
+    networks:
+      - cto-network
 
   # Event Processor (Java Kafka consumer)
   event-processor-java:
@@ -105,6 +105,27 @@ services:
       clickhouse:
         condition: service_healthy
 
+  # API Gateway (Java)
+  api-gateway-java:
+    build:
+      context: ./api-gateway-java
+      dockerfile: Dockerfile
+    container_name: api-gateway-java
+    ports:
+      - "4000:4000"
+    environment:
+      SERVER_PORT: "4000"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/cto_dashboard"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "postgres"
+      CLICKHOUSE_URL: "jdbc:ch://clickhouse:8123/cto_dashboard"
+      CLICKHOUSE_USERNAME: "default"
+      CLICKHOUSE_PASSWORD: ""
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
 
 volumes:
   postgres_data:
