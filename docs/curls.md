@@ -1,7 +1,7 @@
 # GitHub Webhooks CURLs
 
 ### 1. Push Event
-```bash
+```bash {cmd=true}
 curl -X POST https://qd3w2jjv-3000.inc1.devtunnels.ms/github/webhook \
   -H "Content-Type: application/json" \
   -H "x-github-event: push" \
@@ -21,7 +21,7 @@ curl -X POST https://qd3w2jjv-3000.inc1.devtunnels.ms/github/webhook \
 ```
 
 ### 2. Pull Request Event (Opened)
-```bash
+```bash {cmd=true}
 curl -X POST https://qd3w2jjv-3000.inc1.devtunnels.ms/github/webhook \
   -H "Content-Type: application/json" \
   -H "x-github-event: pull_request" \
@@ -41,7 +41,7 @@ curl -X POST https://qd3w2jjv-3000.inc1.devtunnels.ms/github/webhook \
 ```
 
 ### 3. Pull Request Review Event (Approved)
-```bash
+```bash {cmd=true}
 curl -X POST https://qd3w2jjv-3000.inc1.devtunnels.ms/github/webhook \
   -H "Content-Type: application/json" \
   -H "x-github-event: pull_request_review" \
@@ -64,7 +64,7 @@ curl -X POST https://qd3w2jjv-3000.inc1.devtunnels.ms/github/webhook \
 ```
 
 ### 4. GraphQL Query to Fetch Metrics
-```bash
+```bash {cmd=true}
 curl -X POST http://localhost:4000/graphql \
   -H "Content-Type: application/json" \
   -d '{
@@ -87,7 +87,7 @@ Sample Query:
 }
 ```
 Sample cURL:
-```bash
+```bash {cmd=true}
 curl -X POST http://localhost:4000/graphql \
   -H "Content-Type: application/json" \
   -d '{
@@ -103,7 +103,7 @@ Sample Response:
 {"data":{"organization":{"metrics":{"prsMerged":15,"averageCycleTime":24.5,"reviewCount":30}}}}
 
 ### 5. GraphQL Query to Fetch Metrics Schema
-```bash
+```bash {cmd=true}
 curl -X POST http://localhost:4000/graphql \
   -H "Content-Type: application/json" \
   -d '{"query":"{ __schema { queryType { fields { name args { name type { name kind } } } } } }"}'
@@ -114,3 +114,12 @@ iod","type":{"name":null,"kind":"NON_NULL"}}]},{"name":"incidents","args":[{"nam
 curl -X POST https://qd3w2jjv-4000.inc1.devtunnels.ms/graphql \
   -H "Content-Type: application/json" \
   -d '{"query":"{ __schema { queryType { fields { name args { name type { name kind } } } } } }"}'
+```
+
+https://gulab-dashboard-4000.loca.lt
+
+```bash {cmd=true}
+curl -X POST https://gulab-dashboard-4000.loca.lt/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ __schema { queryType { fields { name args { name type { name kind } } } } } }"}'
+  ```
