@@ -13,7 +13,7 @@
         {
             "label": "Expose Port 3000 (Public)",
             "type": "shell",
-            "command": "npx -y localtunnel --port 3000 --subdomain gulab-dashboard-3000",
+            "command": "npx -y localtunnel --port 3000 --subdomain gulab-cto-dash-3000",
             "isBackground": true,
             "presentation": {
                 "reveal": "always",
@@ -23,7 +23,7 @@
         {
             "label": "Expose Port 3001 (Public)",
             "type": "shell",
-            "command": "npx -y localtunnel --port 3001 --subdomain gulab-dashboard-3001",
+            "command": "npx -y localtunnel --port 3001 --subdomain gulab-cto-dash-3001",
             "isBackground": true,
             "presentation": {
                 "reveal": "always",
@@ -33,7 +33,7 @@
         {
             "label": "Expose Port 4000 (Public)",
             "type": "shell",
-            "command": "npx -y localtunnel --port 4000 --subdomain gulab-dashboard-4000",
+            "command": "npx -y localtunnel --port 4000 --subdomain gulab-cto-dash-4000",
             "isBackground": true,
             "presentation": {
                 "reveal": "always",
@@ -46,12 +46,23 @@
                 "Start Infrastructure",
                 "Expose Port 3000 (Public)",
                 "Expose Port 3001 (Public)",
-                "Expose Port 4000 (Public)"
+                "Expose Port 4000 (Public)",
+                "Ping"
             ],
             "problemMatcher": [],
             "group": {
                 "kind": "build",
                 "isDefault": true
+            }
+        },
+        {
+            "label": "Ping",
+            "type": "shell",
+            "command": "sleep 1 && ./docs/ping.sh",
+            "isBackground": false,
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
             }
         }
     ]

@@ -116,10 +116,27 @@ curl -X POST https://qd3w2jjv-4000.inc1.devtunnels.ms/graphql \
   -d '{"query":"{ __schema { queryType { fields { name args { name type { name kind } } } } } }"}'
 ```
 
-https://gulab-dashboard-4000.loca.lt
+https://gulab-cto-dash-4000.loca.lt
 
 ```bash {cmd=true}
-curl -X POST https://gulab-dashboard-4000.loca.lt/graphql \
+curl -X POST https://gulab-cto-dash-4000.loca.lt/graphql \
   -H "Content-Type: application/json" \
   -d '{"query":"{ __schema { queryType { fields { name args { name type { name kind } } } } } }"}'
   ```
+
+### 6. Actuator Health Check
+```bash {cmd=true}
+echo "3000";
+echo "-----";
+curl -X GET https://gulab-cto-dash-3000.loca.lt/actuator/health
+echo "";
+echo "-----";
+echo "3001";
+echo "-----";
+curl -X GET https://gulab-cto-dash-3001.loca.lt/actuator/health
+echo "";
+echo "-----";
+echo "4000";
+echo "-----";
+curl -X GET https://gulab-cto-dash-4000.loca.lt/actuator/health
+```
