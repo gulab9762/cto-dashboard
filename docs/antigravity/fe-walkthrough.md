@@ -29,11 +29,11 @@ Finally, we made the dashboard alive and actionable.
 
 ## Visual Demonstrations
 
-#### Video: Timeline Interactivity & Redirection
-![Interactivity Demo](./media/interactive_timeline_final_ok_1773681788746.webp)
-
 #### Video: Component Interaction & Flow
 ![Component Interaction](./media/final_dashboard_capture_1773679497984.webp)
+
+#### Video: Timeline Interactivity & Redirection
+![Interactivity Demo](./media/interactive_timeline_final_ok_1773681788746.webp)
 
 ## Technical Stack
 - **Frontend**: React 19 + TypeScript + Vite.
