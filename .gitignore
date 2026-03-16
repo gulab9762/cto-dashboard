@@ -3,4 +3,4 @@ dist/
 **/target/
 .env
 *.class
-**target/**
+**/target/**
