@@ -30,7 +30,7 @@ Finally, we made the dashboard alive and actionable.
 ## Visual Demonstrations
 
 #### Video: Actual GitHub Data Demo & Redirection
-![Interactivity Demo](./media/actual_github_data_demo_1773682339468.webp)
+![Interactivity Demo](./media/actual_github_demo_fixed.webp)
 
 ## Technical Stack
 - **Frontend**: React 19 + TypeScript + Vite.
