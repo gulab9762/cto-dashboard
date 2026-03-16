@@ -2,45 +2,46 @@
 
 I have successfully created the raw, premium dashboard components based on your design mockup. The implementation features a high-fidelity glassmorphism aesthetic and is designed for future extensibility (theming, drag-and-drop).
 
-## Key Accomplishments
+## development Journey
 
-### 1. Premium Glassmorphism Design
-The dashboard now features a sophisticated dark theme with glowing accents and semi-transparent cards.
-- **Glass Panel Base**: A reusable `GlassCard` component with `backdrop-blur` and dynamic theme support.
-- **Vibrant Background**: A deep indigo/blue gradient with radial glows that enhance depth.
+### 1. High-Fidelity Design & Mockup
+The journey started with creating the raw, premium dashboard components based on your design mockup.
+- **Glassmorphism Aesthetic**: Implemented semi-transparent cards with `backdrop-blur` and vibrant Indigo gradients.
+- **Parameterized Architecture**: Components are fully driven by a `WidgetConfig` array for future flexibility.
 
-### 2. High-Fidelity Components
-I implemented the following parameterized components:
-- **`PremiumMetricCard`**: Displays key metrics (PRs, Commits, etc.) with Lucide icons and percentage trend indicators.
-- **`UnifiedTimeline`**: A chronological activity stream of engineering events with status-specific icons.
-- **`ExecutiveStabilityView`**: High-level system health badges showing uptime, error rates, and latency.
+![Mockup UI](./media/cto_dashboard_v4_final_1773679771899.png)
 
-### 3. Configuration-Driven Architecture
-As requested, the components are fully parameterized. The dashboard layout is generated from a `WidgetConfig` array, making it easy to implement drag-and-drop or custom themes in the future.
+### 2. Live Backend Integration
+Next, we moved from static data to a live, production-grade environment.
+- **GraphQL Connectivity**: Connected the frontend to the `api-gateway-java` service.
+- **Backend Optimization**: Resolved ClickHouse JDBC protocol issues by disabling compression and ensuring correct port mapping.
+- **Live Metrics**: Dashboard now heartbeats every 30 seconds to fetch PRs, Commits, and Cycle Time from real event data.
 
-### Live Data & Interactivity
-The dashboard is now connected to the real `api-gateway-java` service, fetching live metrics from ClickHouse.
-- **Real Metrics**: PRs, Commits, and Cycle Time are now non-zero and live.
-- **Interactive Activity Stream**: Every event in the timeline is now a **clickable link** that takes you directly to the relevant GitHub commit or pull request.
-- **Auto-Refresh**: Pulse active, refreshing all components every 30 seconds.
+![Live Data](./media/cto_dashboard_live_ok_1773680874832.png)
+
+### 3. Interactive Activity Stream
+Finally, we made the dashboard alive and actionable.
+- **Navigable Events**: Every event in the timeline is now a clickable link.
+- **Smart Deep-linking**: The backend constructs real GitHub URLs for commits and pull requests by parsing event metadata.
+- **UX Polish**: Added hover transitions and pointer indicators to guide interaction.
 
 ![Interactive Timeline](./media/interactive_timeline_final_ok_png_1773681827641.png)
 
-### Video Walkthrough
+## Visual Demonstrations
 
-#### Dashboard Recording
-![Dashboard Recording](./media/final_dashboard_verification_v4_1773679740611.webp)
+#### Video: Timeline Interactivity & Redirection
+![Interactivity Demo](./media/interactive_timeline_final_ok_1773681788746.webp)
 
-#### Component Interaction
+#### Video: Component Interaction & Flow
 ![Component Interaction](./media/final_dashboard_capture_1773679497984.webp)
 
-## Technical Details
-- **Frontend**: React 19 + Vite + TypeScript.
+## Technical Stack
+- **Frontend**: React 19 + TypeScript + Vite.
 - **Styling**: Tailwind CSS v4 + Framer Motion.
-- **Iconography**: Lucide React.
-- **Utilities**: `clsx` and `tailwind-merge` for robust style management.
+- **Backend**: Java API Gateway + ClickHouse + PostgreSQL.
+- **Media**: Tracked via Git LFS for repository performance.
 
 ## How to Run
 1. Navigate to `fe-dashboard`.
-2. Run `npm install` (to get the new `@tailwindcss/postcss` and `framer-motion` dependencies).
-3. Run `npm run dev:local` to view the dashboard on port 3030 (or the next available port).
+2. Run `npm install`.
+3. Run `npm run dev:local` to view the live integrated dashboard.
