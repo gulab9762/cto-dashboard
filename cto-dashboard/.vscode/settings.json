@@ -1,0 +1,22 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "remote.portsAttributes": {
+        "3000": {
+            "onAutoForward": "notify",
+            "elevateIfNeeded": true,
+            "host": "0.0.0.0"
+        },
+        "3001": {
+            "onAutoForward": "notify",
+            "elevateIfNeeded": true,
+            "host": "0.0.0.0"
+        },
+        "4000": {
+            "onAutoForward": "notify",
+            "elevateIfNeeded": true,
+            "host": "0.0.0.0"
+        }
+    },
+    "remote.autoForwardPorts": true
+}

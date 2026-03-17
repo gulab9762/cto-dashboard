@@ -1,4 +1,3 @@
-version: "3.9"
 
 services:
   # Message Queue
@@ -14,11 +13,15 @@ services:
       - --reserve-memory 0M
       - --node-id 0
       - --check=false
+      - --kafka-addr=PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
     ports:
       - "9092:9092"
       - "29092:29092"
     environment:
       REDPANDA_ADVERTISE_KAFKA_API: redpanda:29092
+    networks:
+      - cto-network
 
   # Metrics Database
   postgres:
@@ -37,6 +40,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - cto-network
 
   # Analytics Database
   clickhouse:
@@ -53,56 +58,106 @@ services:
       - ./config/clickhouse/users.xml:/etc/clickhouse-server/users.d/users.xml:ro
       - clickhouse_data:/var/lib/clickhouse
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8123/ping"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8123/ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - cto-network
 
-  # # Integration Service (Webhook handler)
-  # integration-service:
-  #   build:
-  #     context: ./services/integration-service
-  #     dockerfile: Dockerfile
-  #   container_name: integration-service
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 3000
-  #     KAFKA_BROKERS: redpanda:29092
-  #     KAFKA_TOPIC: engineering-events
-  #   depends_on:
-  #     redpanda:
-  #       condition: service_started
-  #   networks:
-  #     - cto-network
+  # Integration Service (Webhook handler)
+  integration-service:
+    build:
+      context: ./integration-service-java
+      dockerfile: Dockerfile
+    container_name: integration-service
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      TOMCAT_THREADS_MAX: ${TOMCAT_THREADS_MAX}
+      TOMCAT_THREADS_MIN_SPARE: ${TOMCAT_THREADS_MIN_SPARE}
+      TOMCAT_MAX_CONNECTIONS: ${TOMCAT_MAX_CONNECTIONS}
+      TOMCAT_ACCEPT_COUNT: ${TOMCAT_ACCEPT_COUNT}
+    depends_on:
+      redpanda:
+        condition: service_started
+    networks:
+      - cto-network
 
-  # # Event Processor (Kafka consumer)
-  # event-processor:
-  #   build:
-  #     context: ./services/event-processor
-  #     dockerfile: Dockerfile
-  #   container_name: event-processor
-  #   ports:
-  #     - "3001:3001"
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 3001
-  #     KAFKA_BROKERS: redpanda:29092
-  #     KAFKA_TOPIC: engineering-events
-  #     DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/cto_dashboard?schema=public"
-  #     CLICKHOUSE_HOST: clickhouse
-  #     CLICKHOUSE_PORT: 8123
-  #     CLICKHOUSE_DATABASE: cto_dashboard
-  #   depends_on:
-  #     redpanda:
-  #       condition: service_started
-  #     postgres:
-  #       condition: service_healthy
-  #     clickhouse:
-  #       condition: service_healthy
-  #   networks:
-  #     - cto-network
+  # Event Processor (Java Kafka consumer)
+  event-processor-java:
+    build:
+      context: ./event-processor-java
+      dockerfile: Dockerfile
+    container_name: event-processor-java
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: "3001"
+      KAFKA_BROKERS: "redpanda:29092"
+      KAFKA_TOPIC: "engineering-events"
+      DATABASE_URL: "jdbc:postgresql://postgres:5432/cto_dashboard"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "postgres"
+      CLICKHOUSE_HOST: "clickhouse"
+      CLICKHOUSE_PORT: "8123"
+      CLICKHOUSE_DATABASE: "cto_dashboard"
+      KAFKA_CONCURRENCY: ${KAFKA_CONCURRENCY}
+      KAFKA_MAX_POLL_RECORDS: ${KAFKA_MAX_POLL_RECORDS}
+      KAFKA_FETCH_MIN_BYTES: ${KAFKA_FETCH_MIN_BYTES}
+      KAFKA_FETCH_MAX_WAIT_MS: ${KAFKA_FETCH_MAX_WAIT_MS}
+    depends_on:
+      redpanda:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - cto-network
+
+  # API Gateway (Java)
+  api-gateway-java:
+    build:
+      context: ./api-gateway-java
+      dockerfile: Dockerfile
+    container_name: api-gateway-java
+    ports:
+      - "4000:4000"
+    environment:
+      SERVER_PORT: "4000"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/cto_dashboard"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "postgres"
+      CLICKHOUSE_URL: "jdbc:ch://clickhouse:8123/cto_dashboard?compress=0"
+      CLICKHOUSE_USERNAME: "default"
+      CLICKHOUSE_PASSWORD: ""
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - cto-network
+
+  # Frontend Dashboard
+  fe-dashboard:
+    build:
+      context: ./fe-dashboard
+      dockerfile: Dockerfile
+    container_name: fe-dashboard
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_URL=http://localhost:4000/graphql
+    networks:
+      - cto-network
 
 volumes:
   postgres_data:
