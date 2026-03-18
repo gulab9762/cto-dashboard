@@ -12,6 +12,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useState, useEffect, useCallback, type FC, type KeyboardEvent } from 'react';
+import { useAuth } from '../auth/AuthContext';
+import LogoutModal from './LogoutModal';
 
 // dnd-kit
 import {
@@ -60,6 +62,8 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
   const [metrics, setMetrics] = useState<any>(null);
   const [refreshPulse, setRefreshPulse] = useState(0);
   const [panelOpen, setPanelOpen] = useState(false);
+  const { logout } = useAuth();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   // ── Drag preview state ──────────────────────────────────────────────────────
   // activeId   = which widget is being dragged (rendered as ghost via DragOverlay)
@@ -219,6 +223,7 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
       <Sidebar
         isExpanded={sidebarExpanded}
         onToggle={() => setSidebarExpanded(!sidebarExpanded)}
+        onLogoutRequest={() => setIsLogoutModalOpen(true)}
         incidentCount={metrics?.incidents?.length || 0}
       />
 
@@ -416,6 +421,13 @@ const DashboardInner: FC<{ orgId: string; onOrgChange: (v: string) => void }> = 
         )}
 
         <CustomizationPanel isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
+
+        <LogoutModal 
+          isOpen={isLogoutModalOpen} 
+          onClose={() => setIsLogoutModalOpen(false)} 
+          onConfirm={logout} 
+          isPanic={(metrics?.incidents?.length || 0) > 10}
+        />
       </main>
     </div>
   );

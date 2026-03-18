@@ -19,12 +19,14 @@ interface SidebarItemProps {
   label: string;
   active?: boolean;
   isExpanded: boolean;
+  onClick?: () => void;
 }
 
-const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, active, isExpanded }) => (
+const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, active, isExpanded, onClick }) => (
   <motion.button
     whileHover={{ scale: 1.02, x: isExpanded ? 4 : 0 }}
     whileTap={{ scale: 0.98 }}
+    onClick={onClick}
     className={`group relative flex items-center h-12 rounded-2xl transition-all duration-300 ${
       isExpanded ? 'px-4 w-full gap-4' : 'justify-center w-12'
     } ${
@@ -65,13 +67,16 @@ const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, active, isExpand
   </motion.button>
 );
 
+
+
 interface SidebarProps {
   isExpanded: boolean;
   onToggle: () => void;
+  onLogoutRequest: () => void;
   incidentCount?: number;
 }
 
-const Sidebar: FC<SidebarProps> = ({ isExpanded, onToggle, incidentCount = 0 }) => {
+const Sidebar: FC<SidebarProps> = ({ isExpanded, onToggle, onLogoutRequest, incidentCount = 0 }) => {
   const isCtoInPanic = incidentCount > 10;
 
   return (
@@ -131,8 +136,10 @@ const Sidebar: FC<SidebarProps> = ({ isExpanded, onToggle, incidentCount = 0 }) 
           label={isCtoInPanic ? "RUN" : "Emergency Exit"} 
           isExpanded={isExpanded} 
           active={isCtoInPanic}
+          onClick={onLogoutRequest}
         />
       </div>
+
     </motion.aside>
   );
 };
