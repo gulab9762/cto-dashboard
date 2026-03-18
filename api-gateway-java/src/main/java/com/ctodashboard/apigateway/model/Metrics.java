@@ -11,4 +11,5 @@ public class Metrics {
     private Integer prsMerged;
     private Double averageCycleTime;
     private Integer reviewCount;
+    private Integer commitCount;
 }

@@ -22,7 +22,7 @@ public class AnalyticsService {
     public List<Event> getRecentEvents(String orgId, int limit) {
 
         String query = String.format("""
-        SELECT id, type, source, actor, timestamp AS ts, repo
+        SELECT id, type, source, actor, timestamp AS ts, repo, metadata
         FROM events
         WHERE orgId = '%s'
         ORDER BY timestamp DESC
@@ -33,13 +33,40 @@ public class AnalyticsService {
             java.sql.Timestamp tsValue = rs.getTimestamp("ts");
             String ts = (tsValue != null) ? tsValue.toInstant().toString() : "";
             
+            String eventType = rs.getString("type") != null ? rs.getString("type") : "";
+            String repo = rs.getString("repo") != null ? rs.getString("repo") : "";
+            String actor = rs.getString("actor") != null ? rs.getString("actor") : "";
+            String metadata = rs.getString("metadata") != null ? rs.getString("metadata") : "{}";
+            
+            String url = "";
+            if (eventType.contains("COMMIT")) {
+                // Simplified extraction for demo - in production use a JSON library
+                String sha = metadata.contains("commitSha\":\"") ? 
+                    metadata.split("commitSha\":\"")[1].split("\"")[0] : "";
+                if (!sha.isEmpty()) {
+                    url = String.format("https://github.com/%s/%s/commit/%s", actor, repo, sha);
+                }
+            } else if (eventType.contains("PR")) {
+                String prNum = metadata.contains("prNumber\":") ? 
+                    metadata.split("prNumber\":")[1].split("[,}]")[0] : "";
+                if (!prNum.isEmpty()) {
+                    url = String.format("https://github.com/%s/%s/pull/%s", actor, repo, prNum);
+                }
+            }
+            
+            // Fallback to repo URL if specific link not found
+            if (url.isEmpty() && !repo.isEmpty()) {
+                url = String.format("https://github.com/%s/%s", actor, repo);
+            }
+
             return new Event(
                 rs.getString("id") != null ? rs.getString("id") : "",
-                rs.getString("type") != null ? rs.getString("type") : "",
+                eventType,
                 rs.getString("source") != null ? rs.getString("source") : "",
-                rs.getString("actor") != null ? rs.getString("actor") : "",
+                actor,
                 ts,
-                rs.getString("repo") != null ? rs.getString("repo") : ""
+                repo,
+                url
             );
         });
     }

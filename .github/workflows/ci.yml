@@ -1,0 +1,51 @@
+name: Engineering Intelligence CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [integration-service-java, event-processor-java, api-gateway-java]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: Build with Maven
+        run: |
+          cd ${{ matrix.service }}
+          mvn clean package -DskipTests
+      - name: Build Docker Image
+        run: |
+          docker build -t cto-dashboard/${{ matrix.service }}:latest ./${{ matrix.service }}
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: fe-dashboard/package-lock.json
+      - name: Install dependencies
+        run: |
+          cd fe-dashboard
+          npm ci
+      - name: Build Frontend
+        run: |
+          cd fe-dashboard
+          npm run build
+      - name: Build Docker Image
+        run: |
+          docker build -t cto-dashboard/fe-dashboard:latest ./fe-dashboard

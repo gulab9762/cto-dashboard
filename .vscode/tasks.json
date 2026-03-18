@@ -75,6 +75,50 @@
                 "panel": "new"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "FE: Rebuild & Redeploy",
+            "type": "shell",
+            "command": "./scripts/deploy.sh fe-dashboard",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Services: Rebuild & Redeploy All",
+            "type": "shell",
+            "command": "./scripts/deploy.sh all",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Service: Rebuild & Redeploy Parameterized",
+            "type": "shell",
+            "command": "./scripts/deploy.sh ${input:serviceName}",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "serviceName",
+            "type": "pickString",
+            "description": "Select the service to rebuild and redeploy",
+            "options": [
+                "fe-dashboard",
+                "api-gateway-java",
+                "integration-service",
+                "event-processor-java"
+            ],
+            "default": "all"
         }
     ]
 }
