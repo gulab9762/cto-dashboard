@@ -30,6 +30,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(ApiKeyAuthFilter.class);
     private static final String API_KEY_HEADER = "X-API-Key";
+    private static final String API_KEY_PARAM = "api_key";
 
     @Value("${integration.security.api-key:${INTEGRATION_API_KEY:changeme-local-dev-key}}")
     private String validApiKey;
@@ -40,6 +41,12 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String providedKey = request.getHeader(API_KEY_HEADER);
+        
+        // If header is missing, also check for a query parameter named 'api_key'
+        // This is the easiest way to pass a secret via GitHub's Payload URL
+        if (providedKey == null) {
+            providedKey = request.getParameter(API_KEY_PARAM);
+        }
 
         if (providedKey != null && providedKey.equals(validApiKey)) {
             // Build an authenticated token – role WEBHOOK_SENDER for fine-grained control
