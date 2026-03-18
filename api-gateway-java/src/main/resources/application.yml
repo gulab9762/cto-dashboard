@@ -1,41 +1,59 @@
 server:
   port: 4000
+
 spring:
   application:
     name: api-gateway
+
   graphql:
     graphiql:
       enabled: true
       path: /graphiql
     cors:
-      allowed-origins: "*"
-      allowed-methods: "*"
+      allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3030}"
+      allowed-methods: "GET,POST,OPTIONS"
       allowed-headers: "*"
-      allow-credentials: false
+      allow-credentials: true
 
-  # Data source will be configured properly when connected to actual database
-  # For now, we mock responses but include dependency and some placeholder config to prevent context load failure
   datasource:
-    url: jdbc:postgresql://localhost:5432/cto_dashboard
-    username: postgres
-    password: postgres
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/cto_dashboard}
+    username: ${DATABASE_USER:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  web:
-    cors:
-          allowed-origins: "*"
-          allowed-methods: "*"
-          allowed-headers: "*"
-          allow-credentials: false
 
 clickhouse:
-  url: jdbc:ch://localhost:8123/cto_dashboard
-  username: default
-  password: ""
+  url: ${CLICKHOUSE_URL:jdbc:ch://localhost:8123/cto_dashboard}
+  username: ${CLICKHOUSE_USER:default}
+  password: ${CLICKHOUSE_PASSWORD:""}
+
+# ── JWT ────────────────────────────────────────────────────────────────────────
+# Override JWT_SECRET env var in production (min 32 chars, stored in secrets manager)
+jwt:
+  secret: ${JWT_SECRET:cto-dashboard-local-dev-secret-at-least-32-chars}
+
+# ── CORS ───────────────────────────────────────────────────────────────────────
+cors:
+  allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3030}"
+
+# ── Users ──────────────────────────────────────────────────────────────────────
+# BCrypt hashes below — passwords: admin123 / viewer123
+# Re-hash with: new BCryptPasswordEncoder().encode("yourpassword")
+app:
+  users:
+    - username: admin
+      hashedPassword: "{noop}admin123"
+      orgId: gulab9762
+      roles: [ADMIN]
+    - username: viewer
+      hashedPassword: "{noop}viewer123"
+      orgId: gulab9762
+      roles: [VIEWER]
+
 management:
   endpoints:
     web:

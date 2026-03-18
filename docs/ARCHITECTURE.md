@@ -384,6 +384,110 @@ Storage:
 
 ---
 
+## Authentication & Authorization
+
+The platform uses **two distinct auth models** matched to the nature of each boundary:
+
+### 1. Integration Service → API Key Authentication
+
+**Why API Key?** GitHub and Jira webhooks are server-to-server calls. These systems cannot participate in interactive OAuth2 flows, but they can inject a static header that only they know.
+
+```
+GitHub / Jira
+    │
+    │  POST /github/webhook
+    │  X-API-Key: <secret>
+    ↓
+Integration Service
+    ├── ApiKeyAuthFilter validates header
+    ├── Sets SecurityContext (ROLE_WEBHOOK_SENDER)
+    └── Publishes to Kafka
+```
+
+**Config:**
+- `INTEGRATION_API_KEY` env var (never hardcode)
+- Actuator `/health` endpoint is public (no key required)
+- All other routes require `hasRole('WEBHOOK_SENDER')`
+
+**Files:**
+- `integration-service-java/src/.../security/ApiKeyAuthFilter.java`
+- `integration-service-java/src/.../security/SecurityConfig.java`
+
+---
+
+### 2. API Gateway → OAuth2 Resource Server (JWT)
+
+**Why OAuth2?** The dashboard UI is a browser SPA. Users are humans who need identity, roles, and session management — OAuth2 PKCE is the industry standard for SPAs.
+
+```
+Frontend (React/Vite)
+    │
+    │  1. Redirects to OIDC provider (Auth0 / Keycloak / Azure AD)
+    │  2. User logs in → provider returns authorization code
+    │  3. PKCE exchange → access_token (JWT) + refresh_token
+    │
+    │  POST /graphql
+    │  Authorization: Bearer <JWT>
+    ↓
+API Gateway
+    ├── OAuth2SecurityConfig validates JWT via JWKS
+    ├── JwtGraphQlInterceptor puts {userId, orgId, roles} in GraphQL context
+    ├── @PreAuthorize("isAuthenticated()")  → any valid token
+    ├── @PreAuthorize("hasRole('ADMIN')")   → incidents endpoint
+    └── Multi-tenant orgId scoping → users only see their org's data
+```
+
+**JWT Claim Mapping (adjust to your IDP):**
+| JWT Claim | Usage |
+|-----------|-------|
+| `sub`     | User identity |
+| `org_id`  | Multi-tenant org scoping (custom claim) |
+| `roles`   | RBAC roles (e.g. `["ADMIN","VIEWER"]`) |
+| `email`   | Display in UI |
+
+**Config:**
+- `OAUTH2_JWKS_URI` env var → OIDC provider's public key endpoint
+- `CORS_ALLOWED_ORIGINS` env var → SPA origins allowed to call the gateway
+
+**Files:**
+- `api-gateway-java/src/.../config/OAuth2SecurityConfig.java`
+- `api-gateway-java/src/.../config/JwtGraphQlInterceptor.java`
+- `api-gateway-java/src/.../controller/MetricsController.java` (annotated)
+
+---
+
+### 3. Frontend → OAuth2 PKCE Client
+
+The SPA implements the Authorization Code + PKCE flow without any client secret:
+
+```
+authService.login()
+    → browser → IDP login page
+    → redirect ?code=… back to /callback
+    → authService.handleCallback()
+       → POST token endpoint (code + PKCE verifier)
+       → saves JWT to localStorage
+    → graphqlRequest() auto-attaches  Authorization: Bearer <token>
+    → silent refresh runs 60s before token expiry
+```
+
+**Files:**
+- `fe-dashboard/src/auth/authService.ts`   (PKCE engine)
+- `fe-dashboard/src/auth/AuthContext.tsx`  (React context + hook)
+- `fe-dashboard/src/components/LoginGate.tsx`  (sign-in UI)
+- `fe-dashboard/src/api/client.ts`          (auto-injects Bearer token)
+
+**FE env vars (set in `.env.local`):**
+```
+VITE_OAUTH2_CLIENT_ID=cto-dashboard-fe
+VITE_OAUTH2_AUTH_URL=https://YOUR_IDP/.../auth
+VITE_OAUTH2_TOKEN_URL=https://YOUR_IDP/.../token
+VITE_OAUTH2_LOGOUT_URL=https://YOUR_IDP/.../logout
+VITE_OAUTH2_REDIRECT_URI=http://localhost:5173/callback
+```
+
+---
+
 ## Technology Stack Summary
 
 | Layer | Component | Purpose | Status |
@@ -480,16 +584,16 @@ query {
 ## Next Steps
 
 ### Phase 2: API Gateway
-- [ ] GraphQL schema design
-- [ ] Query resolvers for metrics
+- [x] GraphQL schema design
+- [x] Query resolvers for metrics
 - [ ] Real-time subscriptions
-- [ ] Authentication & authorization
+- [x] Authentication & authorization (OAuth2 JWT Resource Server + RBAC)
 
 ### Phase 3: Dashboard UI
-- [ ] React component library
-- [ ] Key metric visualizations
-- [ ] Alerting interface
-- [ ] User authentication
+- [x] React component library
+- [x] Key metric visualizations
+- [x] Alerting interface
+- [x] User authentication (OAuth2 PKCE + Login Gate)
 
 ### Phase 4: Advanced Analytics
 - [ ] Anomaly detection

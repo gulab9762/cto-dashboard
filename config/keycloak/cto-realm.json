@@ -1,0 +1,131 @@
+{
+  "realm": "cto-dashboard",
+  "enabled": true,
+  "displayName": "CTO Dashboard",
+  "displayNameHtml": "<b>CTO Dashboard</b>",
+  "loginTheme": "keycloak",
+  "accessTokenLifespan": 3600,
+  "ssoSessionMaxLifespan": 36000,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "sslRequired": "external",
+
+  "roles": {
+    "realm": [
+      { "name": "ADMIN",  "description": "Full access to all metrics and settings" },
+      { "name": "VIEWER", "description": "Read-only access to dashboard metrics" }
+    ]
+  },
+
+  "clients": [
+    {
+      "clientId": "cto-dashboard-fe",
+      "name": "CTO Dashboard Frontend",
+      "description": "React SPA — OAuth2 Authorization Code + PKCE",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "redirectUris": [
+        "http://localhost:5173/*",
+        "http://localhost:3030/*",
+        "http://localhost:80/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173",
+        "http://localhost:3030",
+        "http://localhost:80"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5173##http://localhost:3030"
+      },
+      "defaultClientScopes": ["openid", "profile", "email", "roles"],
+      "optionalClientScopes": ["offline_access"]
+    }
+  ],
+
+  "clientScopes": [
+    {
+      "name": "roles",
+      "description": "Adds realm roles to the access token",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true" },
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "user.attribute": "foo",
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "name": "org_id",
+      "description": "Maps the org_id user attribute to the access token",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true" },
+      "protocolMappers": [
+        {
+          "name": "org_id mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "org_id",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "org_id",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    }
+  ],
+
+  "users": [
+    {
+      "username": "cto-admin",
+      "email": "admin@ctodashboard.local",
+      "firstName": "CTO",
+      "lastName": "Admin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "admin123", "temporary": false }
+      ],
+      "realmRoles": ["ADMIN"],
+      "attributes": {
+        "org_id": ["gulab9762"]
+      }
+    },
+    {
+      "username": "eng-viewer",
+      "email": "viewer@ctodashboard.local",
+      "firstName": "Engineering",
+      "lastName": "Viewer",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "viewer123", "temporary": false }
+      ],
+      "realmRoles": ["VIEWER"],
+      "attributes": {
+        "org_id": ["gulab9762"]
+      }
+    }
+  ]
+}

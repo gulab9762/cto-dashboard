@@ -65,7 +65,7 @@ services:
     networks:
       - cto-network
 
-  # Integration Service (Webhook handler)
+  # Integration Service (Webhook handler — API Key auth)
   integration-service:
     build:
       context: ./integration-service-java
@@ -84,6 +84,7 @@ services:
       TOMCAT_THREADS_MIN_SPARE: ${TOMCAT_THREADS_MIN_SPARE}
       TOMCAT_MAX_CONNECTIONS: ${TOMCAT_MAX_CONNECTIONS}
       TOMCAT_ACCEPT_COUNT: ${TOMCAT_ACCEPT_COUNT}
+      INTEGRATION_API_KEY: ${INTEGRATION_API_KEY:-changeme-local-dev-key}
     depends_on:
       redpanda:
         condition: service_started
@@ -122,7 +123,7 @@ services:
     networks:
       - cto-network
 
-  # API Gateway (Java)
+  # API Gateway — JWT auth (issues + validates its own tokens)
   api-gateway-java:
     build:
       context: ./api-gateway-java
@@ -138,6 +139,9 @@ services:
       CLICKHOUSE_URL: "jdbc:ch://clickhouse:8123/cto_dashboard?compress=0"
       CLICKHOUSE_USERNAME: "default"
       CLICKHOUSE_PASSWORD: ""
+      # Override in production with a strong random secret (min 32 chars)
+      JWT_SECRET: ${JWT_SECRET:-cto-dashboard-local-dev-secret-at-least-32-chars}
+      CORS_ALLOWED_ORIGINS: "http://localhost:5173,http://localhost:3030,http://localhost:80"
     depends_on:
       postgres:
         condition: service_healthy
@@ -151,11 +155,14 @@ services:
     build:
       context: ./fe-dashboard
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://localhost:4000/graphql"
+        VITE_AUTH_URL: "http://localhost:4000/auth/login"
     container_name: fe-dashboard
     ports:
       - "5173:80"
-    environment:
-      - VITE_API_URL=http://localhost:4000/graphql
+    depends_on:
+      - api-gateway-java
     networks:
       - cto-network
 
