@@ -1,0 +1,26 @@
+
+---
+
+## Authorization Strategy
+
+To secure the CTO Dashboard, we will implement a multi-layered authorization strategy centered around the API Gateway.
+
+### 1. Identity & Authentication (OIDC/JWT)
+- **Primary Mechanism**: JSON Web Tokens (JWT) issued by an external Identity Provider (e.g., Auth0, Keycloak).
+- **Validation**: The API Gateway (`api-gateway-java`) validates the JWT signature and claims for every request.
+
+### 2. Multi-Tenancy (Organization Isolation)
+- **Data Scoping**: Every GraphQL query must be scoped by `orgId`.
+- **Claim-Based Authorization**: The user's JWT will contain an `orgId` claim. The Gateway will reject any request where the requested `orgId` does not match the token's claim.
+
+### 3. Role-Based Access Control (RBAC)
+We define the following roles within an organization:
+- `ADMIN`: Full access to org-wide metrics and configuration.
+- `TEAM_LEAD`: Access to specific team dashboards and rollups.
+- `VIEWER`: Read-only access to a predefined set of dashboards.
+
+### 4. Implementation Pattern (Spring Security GraphQL)
+- **Context Injection**: Authentication details are extracted into the `GraphQLContext`.
+- **Method-Level Security**: Using `@PreAuthorize` or GraphQL schema directives (`@auth`) to protect fields and resolvers.
+
+---
