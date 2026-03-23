@@ -51,6 +51,8 @@ public class JwtTokenService {
      * Throws {@link JwtException} if the token is invalid or expired.
      */
     public Claims validateToken(String token) {
+        validateStructure(token);
+
         return Jwts.parser()
                 .verifyWith(signingKey)
                 .build()
@@ -58,8 +60,21 @@ public class JwtTokenService {
                 .getPayload();
     }
 
+
     /** Convenience: extract the subject (username) from a token. */
     public String getUsername(String token) {
         return validateToken(token).getSubject();
+    }
+
+    private void validateStructure(String token) {
+        String[] parts = token.split("\\.", -1);
+        if (parts.length != 3) {
+            throw new JwtException("Invalid JWT structural format");
+        }
+        for (String part : parts) {
+            if (part.length() % 4 == 1) {
+                throw new JwtException("Malformed Base64URL string length modulus 4 is 1");
+            }
+        }
     }
 }
